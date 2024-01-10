@@ -27,13 +27,13 @@ Auctionator.CharacterGuid = 2
 # Seller configuration
 ########################################
 Auctionator.AllianceSeller.Enabled = 0
-Auctionator.AllianceSeller.MaxAuctions = 5000
+Auctionator.AllianceSeller.MaxAuctions = 15000
 
 Auctionator.HordeSeller.Enabled = 0
-Auctionator.HordeSeller.MaxAuctions = 5000
+Auctionator.HordeSeller.MaxAuctions = 15000
 
 Auctionator.NeutralSeller.Enabled = 0
-Auctionator.NeutralSeller.MaxAuctions = 5000
+Auctionator.NeutralSeller.MaxAuctions = 15000
 
 ########################################
 # Bidder/Buyer configuration
@@ -102,6 +102,28 @@ Auctionator.Multipliers.Bidder.Uncommon = 1.5
 Auctionator.Multipliers.Bidder.Rare = 2.0
 Auctionator.Multipliers.Bidder.Epic = 6.0
 Auctionator.Multipliers.Bidder.Legendary = 10.0
+
+#######################################
+# Auctionator configuration for excluding specific item types from auctions
+#######################################
+
+# Exclude Gems
+# If set to 1, gems will be excluded from auction listings.
+# If set to 0, gems will be included in auction listings.
+# Default: 0 (Include Gems)
+Auctionator.Exclude.Gems = 0
+
+# Exclude Enchants
+# If set to 1, enchant items will be excluded from auction listings.
+# If set to 0, enchant items will be included in auction listings.
+# Default: 0 (Include Enchants)
+Auctionator.Exclude.Enchants = 0
+
+# Exclude Trade Goods
+# If set to 1, trade goods will be excluded from auction listings.
+# If set to 0, trade goods will be included in auction listings.
+# Default: 0 (Include Trade Goods)
+Auctionator.Exclude.TradeGoods = 0
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS

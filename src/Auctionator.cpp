@@ -263,6 +263,26 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->bidderMultipliers.legendary
         = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Legendary", 10.0f);
 
+    //Dinkle: New config options for excluding specific item types
+    config->excludeGems = configMgr->GetOption<bool>("Auctionator.Exclude.Gems", false);
+    config->excludeEnchants = configMgr->GetOption<bool>("Auctionator.Exclude.Enchants", false);
+    config->excludeTradeGoods = configMgr->GetOption<bool>("Auctionator.Exclude.TradeGoods", false);
+
+    // Dinkle: Load new multipliers for item classes
+    config->sellerMultipliers.consumable = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Consumable", 1.0f);
+    config->sellerMultipliers.container = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Container", 1.0f);
+    config->sellerMultipliers.weapon = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Weapon", 1.0f);
+    config->sellerMultipliers.gem = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Gem", 1.0f);
+    config->sellerMultipliers.armor = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Armor", 1.0f);
+    config->sellerMultipliers.reagent = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Reagent", 1.0f);
+    config->sellerMultipliers.projectile = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Projectile", 1.0f);
+    config->sellerMultipliers.tradeGoods = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.TradeGoods", 1.0f);
+    config->sellerMultipliers.recipe = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Recipe", 1.0f);
+    config->sellerMultipliers.quiver = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Quiver", 1.0f);
+    config->sellerMultipliers.key = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Key", 1.0f);
+    config->sellerMultipliers.miscellaneous = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Miscellaneous", 1.0f);
+    config->sellerMultipliers.glyph = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Glyph", 1.0f);
+
     logInfo("Auctionator config initialized");
 }
 
