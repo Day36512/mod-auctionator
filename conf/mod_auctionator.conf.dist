@@ -21,15 +21,15 @@ Auctionator.Enabled = 1
 Auctionator.CharacterId = 2
 
 # the character id
-Auctionator.CharacterGuid = 2
+Auctionator.CharacterGuid = 3
 
 ########################################
 # Seller configuration
 ########################################
-Auctionator.AllianceSeller.Enabled = 0
+Auctionator.AllianceSeller.Enabled = 1
 Auctionator.AllianceSeller.MaxAuctions = 15000
 
-Auctionator.HordeSeller.Enabled = 0
+Auctionator.HordeSeller.Enabled = 1
 Auctionator.HordeSeller.MaxAuctions = 15000
 
 Auctionator.NeutralSeller.Enabled = 0
@@ -43,7 +43,7 @@ Auctionator.AllianceBidder.CycleMinutes = 30
 Auctionator.AllianceBidder.MaxPerCycle = 2
 
 Auctionator.HordeBidder.Enabled = 1
-Auctionator.HordeBidder.CycleMinutes = 30
+Auctionator.HordeBidder.CycleMinutes = 1
 Auctionator.HordeBidder.MaxPerCycle = 2
 
 Auctionator.NeutralBidder.Enabled = 1
@@ -61,9 +61,9 @@ Auctionator.Seller.QueryLimit = 1000
 
 ########################################
 # Default price for items that have a BuyPrice of 0.
-# Default is 1000 gold.
+# Default is 1 copper.
 ########################################
-Auctionator.Seller.DefaultPrice = 10000000
+Auctionator.Seller.DefaultPrice = 1
 
 ########################################
 # Number of auctions added to the AH per run. This needs to
@@ -73,7 +73,7 @@ Auctionator.Seller.DefaultPrice = 10000000
 # what happens if it's not.
 # Default is 100 per house per cycle.
 ########################################
-Auctionator.Seller.AuctionsPerRun = 100
+Auctionator.Seller.AuctionsPerRun = 500
 
 ########################################
 # Allows the bidder to bid on their own auctions.
@@ -81,48 +81,77 @@ Auctionator.Seller.AuctionsPerRun = 100
 # get you more turnover in you auctions.
 # Default is 0 to disable bidding on own auctions.
 ########################################
-Auctionator.Bidder.BidOnOwn = 0
+Auctionator.Bidder.BidOnOwn = 1
 
 ########################################
-# Multipliers for seller
+# Multipliers for seller. Class + Quality.
 ########################################
 Auctionator.Multipliers.Seller.Poor = 1.0
-Auctionator.Multipliers.Seller.Normal = 1.0
+Auctionator.Multipliers.Seller.Normal = 1.15
 Auctionator.Multipliers.Seller.Uncommon = 1.5
-Auctionator.Multipliers.Seller.Rare = 2.0
-Auctionator.Multipliers.Seller.Epic = 6.0
-Auctionator.Multipliers.Seller.Legendary = 10.0
+Auctionator.Multipliers.Seller.Rare = 2
+Auctionator.Multipliers.Seller.Epic = 2.8
+Auctionator.Multipliers.Seller.Legendary = 4.0
+
+Auctionator.Multipliers.Seller.Potion = 3.12
+Auctionator.Multipliers.Seller.Elixir = 6.15
+Auctionator.Multipliers.Seller.Subclass.Flask = 8.3
+Auctionator.Multipliers.Seller.Subclass.Scroll = 1.1
+Auctionator.Multipliers.Seller.Subclass.FoodDrink = 4.25
+Auctionator.Multipliers.Seller.Subclass.ItemEnhancement = 3.1
+Auctionator.Multipliers.Seller.Subclass.Bandage = 2.0
+Auctionator.Multipliers.Seller.Subclass.OtherConsumable = 1.5
+Auctionator.Multipliers.Seller.Container = 1.1
+Auctionator.Multipliers.Seller.Weapon = 1.3
+Auctionator.Multipliers.Seller.Gem = 1.2
+Auctionator.Multipliers.Seller.Armor = 1.1
+Auctionator.Multipliers.Seller.Reagent = 1.05
+Auctionator.Multipliers.Seller.Projectile = 1.0
+Auctionator.Multipliers.Seller.TradeGoods = 1.15
+Auctionator.Multipliers.Seller.Recipe = 1.25
+Auctionator.Multipliers.Seller.Quiver = 1.0
+Auctionator.Multipliers.Seller.Key = 1.0
+Auctionator.Multipliers.Seller.Miscellaneous = 1.1
+Auctionator.Multipliers.Seller.Glyph = 1.2
+
 
 ########################################
-# Multipliers for bidder prices
+# Multipliers for bidder prices 
+# TODO: Class multipliers. Right now it's just by quality,
+# so selling may be much lower than buying.
 ########################################
 Auctionator.Multipliers.Bidder.Poor = 1.0
-Auctionator.Multipliers.Bidder.Normal = 1.0
-Auctionator.Multipliers.Bidder.Uncommon = 1.5
-Auctionator.Multipliers.Bidder.Rare = 2.0
-Auctionator.Multipliers.Bidder.Epic = 6.0
-Auctionator.Multipliers.Bidder.Legendary = 10.0
+Auctionator.Multipliers.Bidder.Normal = 2
+Auctionator.Multipliers.Bidder.Uncommon = 3
+Auctionator.Multipliers.Bidder.Rare = 4
+Auctionator.Multipliers.Bidder.Epic = 5
+Auctionator.Multipliers.Bidder.Legendary = 12.0
 
 #######################################
-# Auctionator configuration for excluding specific item types from auctions
+# Dinkle: Auctionator configuration for excluding specific item types from auctions.
+# You may want to exclude said items for better balance in individual progression. 
+# Vanilla has its own set of gems that really shouldn't be using level 70+ gems. Same with TBC and 80+ gems.
+# If you enable trade goods, you also may want to disable the trader 
+# npc script inside your lua_scripts folder though that one has better pricing and more balanced for certain
+# challenge modes (at least for vanilla content).
 #######################################
 
 # Exclude Gems
 # If set to 1, gems will be excluded from auction listings.
 # If set to 0, gems will be included in auction listings.
-# Default: 0 (Include Gems)
-Auctionator.Exclude.Gems = 0
+# Default: 1 (Exclude Gems)
+Auctionator.Exclude.Gems = 1
 
 # Exclude Enchants
 # If set to 1, enchant items will be excluded from auction listings.
 # If set to 0, enchant items will be included in auction listings.
-# Default: 0 (Include Enchants)
-Auctionator.Exclude.Enchants = 0
+# Default: 0 (Exclude Enchants)
+Auctionator.Exclude.Enchants = 1
 
 # Exclude Trade Goods
 # If set to 1, trade goods will be excluded from auction listings.
 # If set to 0, trade goods will be included in auction listings.
-# Default: 0 (Include Trade Goods)
+# Default: 0 (Exclude Trade Goods)
 Auctionator.Exclude.TradeGoods = 0
 
 ###################################################################################################

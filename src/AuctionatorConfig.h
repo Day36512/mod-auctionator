@@ -31,7 +31,14 @@ public:
     float legendary = 10.0f;
 
     // Class multipliers
-    float consumable = 1.0f;
+    float potion = 1.0f;
+    float elixir = 1.0f;
+    float flask = 1.0f;
+    float scroll = 1.0f;
+    float foodDrink = 1.0f;
+    float itemEnhancement = 1.0f;
+    float bandage = 1.0f;
+    float otherConsumable = 1.0f;
     float container = 1.0f;
     float weapon = 1.0f;
     float gem = 1.0f;

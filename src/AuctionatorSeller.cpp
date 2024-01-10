@@ -57,7 +57,8 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
             , it.stackable
             , it.quality
             , mp.average_price
-            , it.class 
+            , it.class
+            , it.subclass
         FROM
             mod_auctionator_itemclass_config aicconf
             LEFT JOIN item_template it ON
@@ -156,14 +157,17 @@ LEFT JOIN (
         float qualityMultiplier = Auctionator::GetQualityMultiplier(multiplierConfig, quality);
 
         // Dinkle: Fetch the item class 
-        uint32 itemClass = fields[6].Get<uint32>(); 
-        float classMultiplier = 1.0f; // Default multiplier
+        uint32 itemClass = fields[6].Get<uint32>();
+        uint32 itemSubclass = fields[7].Get<uint32>();
+        float classMultiplier = 1.0f; 
+        float subclassMultiplier = 1.0f; 
 
         // Dinkle: Determine the class multiplier
-        switch (itemClass) {
-        case 0: // Consumable
-            classMultiplier = multiplierConfig.consumable;
-            break;
+        if (itemClass != 0) {
+            switch (itemClass) {
+        //case 0: // Consumable
+        //    classMultiplier = multiplierConfig.consumable;
+        //    break;
         case 1: // Container
             classMultiplier = multiplierConfig.container;
             break;
@@ -203,7 +207,39 @@ LEFT JOIN (
         default:
             classMultiplier = 1.0f; // Default multiplier if class is not listed
         }
+    }
 
+        // Dinkle: Handle subclasses specifically for Consumables
+        if (itemClass == 0) {
+            switch (itemSubclass) {
+            case 1: // Potion
+                subclassMultiplier = multiplierConfig.potion;
+                break;
+            case 2: // Elixir
+                subclassMultiplier = multiplierConfig.elixir;
+                break;
+            case 3: // Flask
+                subclassMultiplier = multiplierConfig.flask;
+                break;
+            case 4: // Scroll
+                subclassMultiplier = multiplierConfig.scroll;
+                break;
+            case 5: // Food & Drink
+                subclassMultiplier = multiplierConfig.foodDrink;
+                break;
+            case 6: // Item Enhancement
+                subclassMultiplier = multiplierConfig.itemEnhancement;
+                break;
+            case 7: // Bandage
+                subclassMultiplier = multiplierConfig.bandage;
+                break;
+            case 8: // Other
+                subclassMultiplier = multiplierConfig.otherConsumable;
+                break;
+            default:
+                subclassMultiplier = 1.0f; // Default multiplier if subclass is not listed
+            }
+        }
         uint32 price = fields[2].Get<uint32>();
         uint32 marketPrice = fields[5].Get<uint32>();
         if (marketPrice > 0) {
@@ -216,7 +252,7 @@ LEFT JOIN (
             price = 1000 * qualityMultiplier;
         }
         
-        float combinedMultiplier = qualityMultiplier + classMultiplier;
+        float combinedMultiplier = qualityMultiplier + classMultiplier + subclassMultiplier;
         float fluctuationFactor = fluctuationDist(gen);
         uint32 finalPrice = uint32(price * stackSize * combinedMultiplier * fluctuationFactor);
 

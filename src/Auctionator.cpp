@@ -269,7 +269,6 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->excludeTradeGoods = configMgr->GetOption<bool>("Auctionator.Exclude.TradeGoods", false);
 
     // Dinkle: Load new multipliers for item classes
-    config->sellerMultipliers.consumable = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Consumable", 1.0f);
     config->sellerMultipliers.container = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Container", 1.0f);
     config->sellerMultipliers.weapon = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Weapon", 1.0f);
     config->sellerMultipliers.gem = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Gem", 1.0f);
