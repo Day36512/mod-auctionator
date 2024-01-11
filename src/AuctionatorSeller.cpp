@@ -7,7 +7,7 @@
 #include <random>
 #include <optional>
 
-AuctionatorSeller::AuctionatorSeller(Auctionator * natorParam, uint32 auctionHouseIdParam) {
+AuctionatorSeller::AuctionatorSeller(Auctionator* natorParam, uint32 auctionHouseIdParam) {
     SetLogPrefix("[AuctionatorSeller] ");
     nator = natorParam;
     auctionHouseId = auctionHouseIdParam;
@@ -33,7 +33,7 @@ float AuctionatorSeller::GetQualityMultiplier(uint32 quality) {
 }
 
 std::optional<float> AuctionatorSeller::GetClassMultiplier(uint32 itemClass) {
-    AuctionatorPriceMultiplierConfig& multiplierConfig = nator->config->sellerMultipliers; 
+    AuctionatorPriceMultiplierConfig& multiplierConfig = nator->config->sellerMultipliers;
     switch (itemClass) {
     case 1: return multiplierConfig.container;
     case 2: return multiplierConfig.weapon;
@@ -69,6 +69,42 @@ std::optional<float> AuctionatorSeller::GetSubclassMultiplier(uint32 itemClass, 
     return std::nullopt; // No subclass multiplier for other classes
 }
 
+float AuctionatorSeller::GetVanillaQualityMultiplier(uint32 quality) {
+    switch (quality) {
+    case 0: return nator->config->expansionQualityMultipliers.vanillaPoor;
+    case 1: return nator->config->expansionQualityMultipliers.vanillaNormal;
+    case 2: return nator->config->expansionQualityMultipliers.vanillaUncommon;
+    case 3: return nator->config->expansionQualityMultipliers.vanillaRare;
+    case 4: return nator->config->expansionQualityMultipliers.vanillaEpic;
+    case 5: return nator->config->expansionQualityMultipliers.vanillaLegendary;
+    default: return 1.0f;  // Default multiplier for unexpected quality values
+    }
+}
+
+float AuctionatorSeller::GetTBCQualityMultiplier(uint32 quality) {
+    switch (quality) {
+    case 0: return nator->config->expansionQualityMultipliers.tbcPoor;
+    case 1: return nator->config->expansionQualityMultipliers.tbcNormal;
+    case 2: return nator->config->expansionQualityMultipliers.tbcUncommon;
+    case 3: return nator->config->expansionQualityMultipliers.tbcRare;
+    case 4: return nator->config->expansionQualityMultipliers.tbcEpic;
+    case 5: return nator->config->expansionQualityMultipliers.tbcLegendary;
+    default: return 1.0f;  // Default multiplier for unexpected quality values
+    }
+}
+
+float AuctionatorSeller::GetWotLKQualityMultiplier(uint32 quality) {
+    switch (quality) {
+    case 0: return nator->config->expansionQualityMultipliers.wotlkPoor;
+    case 1: return nator->config->expansionQualityMultipliers.wotlkNormal;
+    case 2: return nator->config->expansionQualityMultipliers.wotlkUncommon;
+    case 3: return nator->config->expansionQualityMultipliers.wotlkRare;
+    case 4: return nator->config->expansionQualityMultipliers.wotlkEpic;
+    case 5: return nator->config->expansionQualityMultipliers.wotlkLegendary;
+    default: return 1.0f;  // Default multiplier for unexpected quality values
+    }
+}
+
 void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
 {
     // Check config settings
@@ -76,7 +112,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     bool excludeEnchants = nator->config->excludeEnchants;
     bool excludeTradeGoods = nator->config->excludeTradeGoods;
     bool excludeGlyphs = nator->config->excludeGlyphs;
-    
+
     // Construct additional WHERE conditions based on config
     std::string additionalConditions = "";
     if (excludeGems) {
@@ -111,6 +147,8 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
             , mp.average_price
             , it.class
             , it.subclass
+            , it.ItemLevel
+            , it.RequiredLevel
         FROM
             mod_auctionator_itemclass_config aicconf
             LEFT JOIN item_template it ON
@@ -189,24 +227,42 @@ LEFT JOIN (
     do
     {
         count++;
+        count++;
         Field* fields = result->Fetch();
-
-        // TODO: refactor listing an item into a testable method
         std::string itemName = fields[1].Get<std::string>();
 
-        // if (stackSize > 20) {
-        //     std::random_device rd;
-        //     std::mt19937 gen(rd());
-        //     std::uniform_int_distribution<> dis(1, stackSize);
-        //     stackSize = dis(gen);
-        //     logDebug("Stack size: " + std::to_string(stackSize));
-        // }
+        uint32 itemClass = fields[6].Get<uint32>();
+        uint32 stackable = fields[3].Get<uint32>();
+        uint32 stackSize;
+
+        // Set stack size to 1000 for projectile class, otherwise calculate based on stackable value
+        if (itemClass == 6) { // 6 is the class ID for projectiles
+            stackSize = 1000;
+        }
+        else if (stackable >= 20) {
+            std::uniform_int_distribution<> stackDist(1, 20);
+            stackSize = stackDist(gen);
+        }
+        else {
+            stackSize = stackable; // Use the stackable value directly
+        }
 
         uint32 quality = fields[4].Get<uint32>();
-        uint32 itemClass = fields[6].Get<uint32>();
         uint32 itemSubclass = fields[7].Get<uint32>();
         uint32 price = fields[2].Get<uint32>();
         uint32 marketPrice = fields[5].Get<uint32>();
+        uint32 itemLevel = fields[8].Get<uint32>();
+        if (itemLevel == 0 || itemLevel == 1) {
+            itemLevel = fields[9].Get<uint32>(); // Use RequiredLevel as fallback
+
+            // Adjust the expansion range based on RequiredLevel
+            if (itemLevel <= 60) { // Vanilla
+                itemLevel = 92; // Set a value within Vanilla range
+            }
+            else if (itemLevel <= 70) { // TBC
+                itemLevel = 164; // Set a value within TBC range
+            } // No change needed for WotLK, as 71+ already falls in this range
+        }
 
         float qualityMultiplier = GetQualityMultiplier(quality);
         auto classMultiplierOpt = GetClassMultiplier(itemClass);
@@ -220,6 +276,18 @@ LEFT JOIN (
             combinedMultiplier *= subclassMultiplierOpt.value();
         }
 
+        // Determine expansion-specific and quality-based multiplier
+        float expansionQualityMultiplier = 1.0f;
+        if (itemLevel >= 1 && itemLevel <= 92) { // Vanilla
+            expansionQualityMultiplier = GetVanillaQualityMultiplier(quality);
+        }
+        else if (itemLevel >= 93 && itemLevel <= 164) { // TBC
+            expansionQualityMultiplier = GetTBCQualityMultiplier(quality);
+        }
+        else if (itemLevel >= 165) { // WotLK
+            expansionQualityMultiplier = GetWotLKQualityMultiplier(quality);
+        }
+
         float finalPricePerItem = 0.0f;
         float fluctuationFactor = fluctuationDist(gen);
 
@@ -227,12 +295,10 @@ LEFT JOIN (
             finalPricePerItem = marketPrice * fluctuationFactor;
         }
         else {
-            finalPricePerItem = static_cast<float>(price) * combinedMultiplier * fluctuationFactor;
-        }
-
-        uint32 stackSize = fields[3].Get<uint32>();
-        if (stackSize > 20) {
-            stackSize = 20; // or any other logic for stack size
+            finalPricePerItem = static_cast<float>(price) * qualityMultiplier *
+                (classMultiplierOpt ? classMultiplierOpt.value() : 1.0f) *
+                (subclassMultiplierOpt ? subclassMultiplierOpt.value() : 1.0f) *
+                expansionQualityMultiplier * fluctuationFactor;
         }
 
         float totalPriceForStack = finalPricePerItem * static_cast<float>(stackSize);

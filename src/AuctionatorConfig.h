@@ -57,10 +57,34 @@ struct AuctionatorSellerConfig
 {
     public:
         uint32 queryLimit = 1000;
-        uint32 defaultPrice = 100000;
+        uint32 defaultPrice = 10000;
         uint32 auctionsPerRun = 100;
         float fluctuationMin = 0.94f;  
         float fluctuationMax = 1.06f;
+};
+
+struct AuctionatorExpansionQualityMultiplierConfig {
+    float vanillaPoor = 1.0f;
+    float vanillaNormal = 1.0f;
+    float vanillaUncommon = 1.0f;
+    float vanillaRare = 1.0f;
+    float vanillaEpic = 1.0f;
+    float vanillaLegendary = 1.0f;
+
+    float tbcPoor = 1.0f;
+    float tbcNormal = 1.0f;
+    float tbcUncommon = 1.0f;
+    float tbcRare = 1.0f;
+    float tbcEpic = 1.0f;
+    float tbcLegendary = 1.0f;
+
+    float wotlkPoor = 1.0f;
+    float wotlkNormal = 1.0f;
+    float wotlkUncommon = 1.0f;
+    float wotlkRare = 1.0f;
+    float wotlkEpic = 1.0f;
+    float wotlkLegendary = 1.0f;
+
 };
 
 class AuctionatorConfig
@@ -86,6 +110,8 @@ class AuctionatorConfig
         AuctionatorPriceMultiplierConfig bidderMultipliers;
 
         AuctionatorSellerConfig sellerConfig;
+
+        AuctionatorExpansionQualityMultiplierConfig expansionQualityMultipliers;
 
         uint32 bidOnOwn = 0;
         // Dinkle New fields for excluding specific item types

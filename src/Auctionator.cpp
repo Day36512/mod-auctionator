@@ -287,6 +287,30 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->sellerConfig.fluctuationMin = configMgr->GetOption<float>("Auctionator.Seller.FluctuationMin", 1.0f);
     config->sellerConfig.fluctuationMax = configMgr->GetOption<float>("Auctionator.Seller.FluctuationMax", 1.0f);
 
+    // Dinkle: Load Vanilla expansion quality multipliers
+    config->expansionQualityMultipliers.vanillaPoor = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.Vanilla.Poor", 1.0f);
+    config->expansionQualityMultipliers.vanillaNormal = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.Vanilla.Normal", 1.0f);
+    config->expansionQualityMultipliers.vanillaUncommon = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.Vanilla.Uncommon", 1.0f);
+    config->expansionQualityMultipliers.vanillaRare = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.Vanilla.Rare", 1.0f);
+    config->expansionQualityMultipliers.vanillaEpic = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.Vanilla.Epic", 1.0f);
+    config->expansionQualityMultipliers.vanillaLegendary = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.Vanilla.Legendary", 1.0f);
+
+    // Dinkle: Load TBC expansion quality multipliers
+    config->expansionQualityMultipliers.tbcPoor = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.TBC.Poor", 1.0f);
+    config->expansionQualityMultipliers.tbcNormal = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.TBC.Normal", 1.0f);
+    config->expansionQualityMultipliers.tbcUncommon = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.TBC.Uncommon", 1.0f);
+    config->expansionQualityMultipliers.tbcRare = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.TBC.Rare", 1.0f);
+    config->expansionQualityMultipliers.tbcEpic = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.TBC.Epic", 1.0f);
+    config->expansionQualityMultipliers.tbcLegendary = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.TBC.Legendary", 1.0f);
+
+    // Dinkle: Load WotLK expansion quality multipliers
+    config->expansionQualityMultipliers.wotlkPoor = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Poor", 1.0f);
+    config->expansionQualityMultipliers.wotlkNormal = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Normal", 1.0f);
+    config->expansionQualityMultipliers.wotlkUncommon = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Uncommon", 1.0f);
+    config->expansionQualityMultipliers.wotlkRare = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Rare", 1.0f);
+    config->expansionQualityMultipliers.wotlkEpic = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Epic", 1.0f);
+    config->expansionQualityMultipliers.wotlkLegendary = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Legendary", 1.0f);
+
     logInfo("Auctionator config initialized");
 }
 
