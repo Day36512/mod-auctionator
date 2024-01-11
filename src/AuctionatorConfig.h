@@ -25,10 +25,10 @@ public:
     // Quality multipliers
     float poor = 1.0f;
     float normal = 1.0f;
-    float uncommon = 1.5f;
-    float rare = 2.0f;
-    float epic = 6.0f;
-    float legendary = 10.0f;
+    float uncommon = 1.0f;
+    float rare = 1.0f;
+    float epic = 1.0f;
+    float legendary = 1.0f;
 
     // Class multipliers
     float potion = 1.0f;
@@ -90,6 +90,8 @@ class AuctionatorConfig
         bool excludeGems = false;
         bool excludeEnchants = false;
         bool excludeTradeGoods = false;
+        bool excludeGlyphs = false;
+
 };
 
 #endif

@@ -267,6 +267,7 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->excludeGems = configMgr->GetOption<bool>("Auctionator.Exclude.Gems", false);
     config->excludeEnchants = configMgr->GetOption<bool>("Auctionator.Exclude.Enchants", false);
     config->excludeTradeGoods = configMgr->GetOption<bool>("Auctionator.Exclude.TradeGoods", false);
+    config->excludeGlyphs = configMgr->GetOption<bool>("Auctionator.Exclude.Glyphs", false);
 
     // Dinkle: Load new multipliers for item classes
     config->sellerMultipliers.container = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Container", 1.0f);

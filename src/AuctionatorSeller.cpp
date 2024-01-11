@@ -27,7 +27,8 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     bool excludeGems = nator->config->excludeGems;
     bool excludeEnchants = nator->config->excludeEnchants;
     bool excludeTradeGoods = nator->config->excludeTradeGoods;
-
+    bool excludeGlyphs = nator->config->excludeGlyphs;
+    
     // Construct additional WHERE conditions based on config
     std::string additionalConditions = "";
     if (excludeGems) {
@@ -38,6 +39,9 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     }
     if (excludeTradeGoods) {
         additionalConditions += " AND it.class != 7";
+    }
+    if (excludeGlyphs) {
+        additionalConditions += " AND it.class != 16";
     }
 
     // Set the maximum number of items to query for. Changing this <might>
@@ -159,8 +163,8 @@ LEFT JOIN (
         // Dinkle: Fetch the item class 
         uint32 itemClass = fields[6].Get<uint32>();
         uint32 itemSubclass = fields[7].Get<uint32>();
-        float classMultiplier = 1.0f; 
-        float subclassMultiplier = 1.0f; 
+        float classMultiplier = 1.0f;
+        float subclassMultiplier = 1.0f;
 
         // Dinkle: Determine the class multiplier
         if (itemClass != 0) {
@@ -242,34 +246,34 @@ LEFT JOIN (
         }
         uint32 price = fields[2].Get<uint32>();
         uint32 marketPrice = fields[5].Get<uint32>();
-        if (marketPrice > 0) {
-            logDebug("Using Market over Template [" + itemName + "] " +
-                std::to_string(marketPrice) + " <--> " + std::to_string(price));
-            price = marketPrice;
-        }
-
-        if (price == 0) {
-            price = 1000 * qualityMultiplier;
-        }
-        
-        float combinedMultiplier = qualityMultiplier + classMultiplier + subclassMultiplier;
+        float finalPricePerItem = 0.0f;
         float fluctuationFactor = fluctuationDist(gen);
-        uint32 finalPrice = uint32(price * stackSize * combinedMultiplier * fluctuationFactor);
 
-        // Setup the auction item
+        if (marketPrice > 0) {
+            finalPricePerItem = marketPrice * fluctuationFactor;
+        }
+        else {
+            // If market price is not available, calculate price based on multipliers
+            float combinedMultiplier = qualityMultiplier + classMultiplier + subclassMultiplier;
+            finalPricePerItem = static_cast<float>(price) * combinedMultiplier * fluctuationFactor;
+        }
+
+        // Calculate total price for the stack
+        float totalPriceForStack = finalPricePerItem * static_cast<float>(stackSize);
+
         AuctionatorItem newItem = AuctionatorItem();
         newItem.itemId = fields[0].Get<uint32>();
         newItem.quantity = 1;
-        newItem.buyout = finalPrice;
+        newItem.buyout = totalPriceForStack;
         newItem.time = 60 * 60 * 12;
         newItem.stackSize = stackSize;
 
         logDebug("Adding item: " + itemName
             + " with quantity of " + std::to_string(newItem.quantity)
-            + " at price of " +  std::to_string(newItem.buyout)
+            + " at total price of " + std::to_string(newItem.buyout) + " ("
+            + " for a stack of " + std::to_string(stackSize)
             + " to house " + std::to_string(houseId)
         );
-
 
         nator->CreateAuction(newItem, houseId);
         if (count == maxCount) {
@@ -280,5 +284,4 @@ LEFT JOIN (
     logInfo("Items added houseId("
         + std::to_string(houseId)
         + ") this run: " + std::to_string(count));
-
 };
