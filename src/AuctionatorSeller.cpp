@@ -5,21 +5,69 @@
 #include "DatabaseEnv.h"
 #include "PreparedStatement.h"
 #include <random>
+#include <optional>
 
-
-AuctionatorSeller::AuctionatorSeller(Auctionator* natorParam, uint32 auctionHouseIdParam)
-{
+AuctionatorSeller::AuctionatorSeller(Auctionator * natorParam, uint32 auctionHouseIdParam) {
     SetLogPrefix("[AuctionatorSeller] ");
     nator = natorParam;
     auctionHouseId = auctionHouseIdParam;
-
     ahMgr = nator->GetAuctionMgr(auctionHouseId);
-};
+}
 
 AuctionatorSeller::~AuctionatorSeller()
 {
     // TODO: clean up
 };
+
+float AuctionatorSeller::GetQualityMultiplier(uint32 quality) {
+    AuctionatorPriceMultiplierConfig multiplierConfig = nator->config->sellerMultipliers;
+    switch (quality) {
+    case 0: return multiplierConfig.poor;       // Poor
+    case 1: return multiplierConfig.normal;     // Normal
+    case 2: return multiplierConfig.uncommon;   // Uncommon
+    case 3: return multiplierConfig.rare;       // Rare
+    case 4: return multiplierConfig.epic;       // Epic
+    case 5: return multiplierConfig.legendary;  // Legendary
+    default: return 1.0f; // Default
+    }
+}
+
+std::optional<float> AuctionatorSeller::GetClassMultiplier(uint32 itemClass) {
+    AuctionatorPriceMultiplierConfig& multiplierConfig = nator->config->sellerMultipliers; 
+    switch (itemClass) {
+    case 1: return multiplierConfig.container;
+    case 2: return multiplierConfig.weapon;
+    case 3: return multiplierConfig.gem;
+    case 4: return multiplierConfig.armor;
+    case 5: return multiplierConfig.reagent;
+    case 6: return multiplierConfig.projectile;
+    case 7: return multiplierConfig.tradeGoods;
+    case 9: return multiplierConfig.recipe;
+    case 11: return multiplierConfig.quiver;
+    case 13: return multiplierConfig.key;
+    case 15: return multiplierConfig.miscellaneous;
+    case 16: return multiplierConfig.glyph;
+    default: return std::nullopt; // No specific class multiplier
+    }
+}
+
+std::optional<float> AuctionatorSeller::GetSubclassMultiplier(uint32 itemClass, uint32 itemSubclass) {
+    AuctionatorPriceMultiplierConfig& multiplierConfig = nator->config->sellerMultipliers; // Access sellerMultipliers directly
+    if (itemClass == 0) { // Assuming 0 is for consumables
+        switch (itemSubclass) {
+        case 1: return multiplierConfig.potion;
+        case 2: return multiplierConfig.elixir;
+        case 3: return multiplierConfig.flask;
+        case 4: return multiplierConfig.scroll;
+        case 5: return multiplierConfig.foodDrink;
+        case 6: return multiplierConfig.itemEnhancement;
+        case 7: return multiplierConfig.bandage;
+        case 8: return multiplierConfig.otherConsumable;
+        default: return std::nullopt; // No specific subclass multiplier
+        }
+    }
+    return std::nullopt; // No subclass multiplier for other classes
+}
 
 void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
 {
@@ -130,9 +178,11 @@ LEFT JOIN (
     }
 
     // Dinkle: Randomize prices a bit.
+    float fluctuationMin = nator->config->sellerConfig.fluctuationMin;
+    float fluctuationMax = nator->config->sellerConfig.fluctuationMax;
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> fluctuationDist(0.95, 1.05); // +/- a 5% fluctuation
+    std::uniform_real_distribution<> fluctuationDist(fluctuationMin, fluctuationMax);
 
     AuctionatorPriceMultiplierConfig multiplierConfig = nator->config->sellerMultipliers;
     uint32 count = 0;
@@ -144,11 +194,6 @@ LEFT JOIN (
         // TODO: refactor listing an item into a testable method
         std::string itemName = fields[1].Get<std::string>();
 
-        uint32 stackSize = fields[3].Get<uint32>();
-        if (stackSize > 20) {
-            stackSize = 20;
-        }
-
         // if (stackSize > 20) {
         //     std::random_device rd;
         //     std::mt19937 gen(rd());
@@ -158,94 +203,23 @@ LEFT JOIN (
         // }
 
         uint32 quality = fields[4].Get<uint32>();
-        float qualityMultiplier = Auctionator::GetQualityMultiplier(multiplierConfig, quality);
-
-        // Dinkle: Fetch the item class 
         uint32 itemClass = fields[6].Get<uint32>();
         uint32 itemSubclass = fields[7].Get<uint32>();
-        float classMultiplier = 1.0f;
-        float subclassMultiplier = 1.0f;
-
-        // Dinkle: Determine the class multiplier
-        if (itemClass != 0) {
-            switch (itemClass) {
-        //case 0: // Consumable
-        //    classMultiplier = multiplierConfig.consumable;
-        //    break;
-        case 1: // Container
-            classMultiplier = multiplierConfig.container;
-            break;
-        case 2: // Weapon
-            classMultiplier = multiplierConfig.weapon;
-            break;
-        case 3: // Gem
-            classMultiplier = multiplierConfig.gem;
-            break;
-        case 4: // Armor
-            classMultiplier = multiplierConfig.armor;
-            break;
-        case 5: // Reagent
-            classMultiplier = multiplierConfig.reagent;
-            break;
-        case 6: // Projectile
-            classMultiplier = multiplierConfig.projectile;
-            break;
-        case 7: // Trade Goods
-            classMultiplier = multiplierConfig.tradeGoods;
-            break;
-        case 9: // Recipe
-            classMultiplier = multiplierConfig.recipe;
-            break;
-        case 11: // Quiver
-            classMultiplier = multiplierConfig.quiver;
-            break;
-        case 13: // Key
-            classMultiplier = multiplierConfig.key;
-            break;
-        case 15: // Miscellaneous
-            classMultiplier = multiplierConfig.miscellaneous;
-            break;
-        case 16: // Glyph
-            classMultiplier = multiplierConfig.glyph;
-            break;
-        default:
-            classMultiplier = 1.0f; // Default multiplier if class is not listed
-        }
-    }
-
-        // Dinkle: Handle subclasses specifically for Consumables
-        if (itemClass == 0) {
-            switch (itemSubclass) {
-            case 1: // Potion
-                subclassMultiplier = multiplierConfig.potion;
-                break;
-            case 2: // Elixir
-                subclassMultiplier = multiplierConfig.elixir;
-                break;
-            case 3: // Flask
-                subclassMultiplier = multiplierConfig.flask;
-                break;
-            case 4: // Scroll
-                subclassMultiplier = multiplierConfig.scroll;
-                break;
-            case 5: // Food & Drink
-                subclassMultiplier = multiplierConfig.foodDrink;
-                break;
-            case 6: // Item Enhancement
-                subclassMultiplier = multiplierConfig.itemEnhancement;
-                break;
-            case 7: // Bandage
-                subclassMultiplier = multiplierConfig.bandage;
-                break;
-            case 8: // Other
-                subclassMultiplier = multiplierConfig.otherConsumable;
-                break;
-            default:
-                subclassMultiplier = 1.0f; // Default multiplier if subclass is not listed
-            }
-        }
         uint32 price = fields[2].Get<uint32>();
         uint32 marketPrice = fields[5].Get<uint32>();
+
+        float qualityMultiplier = GetQualityMultiplier(quality);
+        auto classMultiplierOpt = GetClassMultiplier(itemClass);
+        auto subclassMultiplierOpt = GetSubclassMultiplier(itemClass, itemSubclass);
+
+        float combinedMultiplier = qualityMultiplier;
+        if (classMultiplierOpt) {
+            combinedMultiplier *= classMultiplierOpt.value();
+        }
+        if (subclassMultiplierOpt) {
+            combinedMultiplier *= subclassMultiplierOpt.value();
+        }
+
         float finalPricePerItem = 0.0f;
         float fluctuationFactor = fluctuationDist(gen);
 
@@ -253,24 +227,27 @@ LEFT JOIN (
             finalPricePerItem = marketPrice * fluctuationFactor;
         }
         else {
-            // If market price is not available, calculate price based on multipliers
-            float combinedMultiplier = qualityMultiplier + classMultiplier + subclassMultiplier;
             finalPricePerItem = static_cast<float>(price) * combinedMultiplier * fluctuationFactor;
         }
 
-        // Calculate total price for the stack
+        uint32 stackSize = fields[3].Get<uint32>();
+        if (stackSize > 20) {
+            stackSize = 20; // or any other logic for stack size
+        }
+
         float totalPriceForStack = finalPricePerItem * static_cast<float>(stackSize);
 
         AuctionatorItem newItem = AuctionatorItem();
         newItem.itemId = fields[0].Get<uint32>();
-        newItem.quantity = 1;
+        newItem.quantity = 1; // or any logic for quantity
         newItem.buyout = totalPriceForStack;
-        newItem.time = 60 * 60 * 12;
+        newItem.time = 60 * 60 * 12; // or any other auction time
         newItem.stackSize = stackSize;
 
+        // Logging and creating auction
         logDebug("Adding item: " + itemName
             + " with quantity of " + std::to_string(newItem.quantity)
-            + " at total price of " + std::to_string(newItem.buyout) + " ("
+            + " at total price of " + std::to_string(newItem.buyout)
             + " for a stack of " + std::to_string(stackSize)
             + " to house " + std::to_string(houseId)
         );
@@ -284,4 +261,4 @@ LEFT JOIN (
     logInfo("Items added houseId("
         + std::to_string(houseId)
         + ") this run: " + std::to_string(count));
-};
+}

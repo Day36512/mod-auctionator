@@ -241,13 +241,13 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->sellerMultipliers.normal
         = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Normal", 1.0f);
     config->sellerMultipliers.uncommon
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Uncommon", 1.5f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Uncommon", 1.0f);
     config->sellerMultipliers.rare
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Rare", 2.0f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Rare", 1.0f);
     config->sellerMultipliers.epic
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Epic", 6.0f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Epic", 1.0f);
     config->sellerMultipliers.legendary
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Legendary", 10.0f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Legendary", 1.0f);
 
     // load out multipliers for bidder prices
     config->bidderMultipliers.poor
@@ -255,13 +255,13 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->bidderMultipliers.normal
         = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Normal", 1.0f);
     config->bidderMultipliers.uncommon
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Uncommon", 1.5f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Uncommon", 1.0f);
     config->bidderMultipliers.rare
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Rare", 2.0f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Rare", 1.0f);
     config->bidderMultipliers.epic
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Epic", 6.0f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Epic", 1.0f);
     config->bidderMultipliers.legendary
-        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Legendary", 10.0f);
+        = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Legendary", 1.0f);
 
     //Dinkle: New config options for excluding specific item types
     config->excludeGems = configMgr->GetOption<bool>("Auctionator.Exclude.Gems", false);
@@ -282,6 +282,10 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->sellerMultipliers.key = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Key", 1.0f);
     config->sellerMultipliers.miscellaneous = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Miscellaneous", 1.0f);
     config->sellerMultipliers.glyph = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Glyph", 1.0f);
+
+    // Dinkle: Load new multipliers for fluctuation
+    config->sellerConfig.fluctuationMin = configMgr->GetOption<float>("Auctionator.Seller.FluctuationMin", 1.0f);
+    config->sellerConfig.fluctuationMax = configMgr->GetOption<float>("Auctionator.Seller.FluctuationMax", 1.0f);
 
     logInfo("Auctionator config initialized");
 }

@@ -1,21 +1,25 @@
-
 #ifndef AUCTIONATORSELLER_H
 #define AUCTIONATORSELLER_H
 
 #include "Auctionator.h"
 #include "AuctionHouseMgr.h"
+#include <optional>
 
 class AuctionatorSeller : public AuctionatorBase
 {
-    private:
-        Auctionator* nator;
-        uint32 auctionHouseId;
-        AuctionHouseObject* ahMgr;
+private:
+    Auctionator* nator;
+    uint32 auctionHouseId;
+    AuctionHouseObject* ahMgr;
 
-    public:
-        AuctionatorSeller(Auctionator* natorParam, uint32 auctionHouseIdParam);
-        ~AuctionatorSeller();
-        void LetsGetToIt(uint32 maxCount, uint32 houseId);
+    float GetQualityMultiplier(uint32 quality);
+    std::optional<float> GetClassMultiplier(uint32 itemClass);
+    std::optional<float> GetSubclassMultiplier(uint32 itemClass, uint32 itemSubclass);
+
+public:
+    AuctionatorSeller(Auctionator* natorParam, uint32 auctionHouseIdParam);
+    ~AuctionatorSeller();
+    void LetsGetToIt(uint32 maxCount, uint32 houseId);
 };
 
 #endif  //AUCTIONATORSELLER_H

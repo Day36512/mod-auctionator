@@ -101,7 +101,7 @@ Auctionator.Multipliers.Seller.Potion = 3.12
 Auctionator.Multipliers.Seller.Elixir = 6.15
 Auctionator.Multipliers.Seller.Subclass.Flask = 5.3
 Auctionator.Multipliers.Seller.Subclass.Scroll = 1.1
-Auctionator.Multipliers.Seller.Subclass.FoodDrink = 4.25
+Auctionator.Multipliers.Seller.Subclass.FoodDrink = 3.25
 Auctionator.Multipliers.Seller.Subclass.ItemEnhancement = 3.1
 Auctionator.Multipliers.Seller.Subclass.Bandage = 2.0
 Auctionator.Multipliers.Seller.Subclass.OtherConsumable = 1.5
@@ -118,18 +118,19 @@ Auctionator.Multipliers.Seller.Key = 1.0
 Auctionator.Multipliers.Seller.Miscellaneous = 1.1
 Auctionator.Multipliers.Seller.Glyph = 1.2
 
+# Auctionator.Seller.FluctuationMin
+# Defines the minimum price fluctuation percentage for auctioned items.
+# This value sets the lower limit for random price variation, expressed as a percentage of the base price.
+# For example, a value of 0.94 means the item's auction price will not fall below 94% of its base price.
+# Default: 0.94
+Auctionator.Seller.FluctuationMin = 0.94
 
-########################################
-# Multipliers for bidder prices 
-# TODO: Class multipliers. Right now it's just by quality,
-# so selling may be much lower than buying.
-########################################
-Auctionator.Multipliers.Bidder.Poor = 1.0
-Auctionator.Multipliers.Bidder.Normal = 2
-Auctionator.Multipliers.Bidder.Uncommon = 3
-Auctionator.Multipliers.Bidder.Rare = 4
-Auctionator.Multipliers.Bidder.Epic = 5
-Auctionator.Multipliers.Bidder.Legendary = 10.0
+# Auctionator.Seller.FluctuationMax
+# Specifies the maximum price fluctuation percentage for auctioned items.
+# This value sets the upper limit for random price variation, expressed as a percentage of the base price.
+# For example, a value of 1.06 means the item's auction price will not exceed 106% of its base price.
+# Default: 1.06
+Auctionator.Seller.FluctuationMax = 1.06
 
 #######################################
 # Dinkle: Auctionator configuration for excluding specific item types from auctions.
@@ -149,14 +150,34 @@ Auctionator.Exclude.Gems = 1
 # Exclude Enchants
 # If set to 1, enchant items will be excluded from auction listings.
 # If set to 0, enchant items will be included in auction listings.
-# Default: 0 (Exclude Enchants)
+# Default: 1 (Exclude Enchants)
 Auctionator.Exclude.Enchants = 1
 
 # Exclude Trade Goods
 # If set to 1, trade goods will be excluded from auction listings.
 # If set to 0, trade goods will be included in auction listings.
-# Default: 0 (Exclude Trade Goods)
+# Default: 1 (Exclude Trade Goods)
 Auctionator.Exclude.TradeGoods = 0
+
+# Exclude Glyphs
+# If set to 1, Glyphs will be excluded from auction listings.
+# If set to 0, Glyphs will be included in auction listings.
+# Default: 1(Exclude Glyphs)
+Auctionator.Exclude.Glyphs = 1
+
+
+########################################
+# Multipliers for bidder prices 
+# TODO: Class multipliers. Right now it's just by quality,
+# so selling may be much different than buying.
+########################################
+Auctionator.Multipliers.Bidder.Poor = 1.0
+Auctionator.Multipliers.Bidder.Normal = 2
+Auctionator.Multipliers.Bidder.Uncommon = 3
+Auctionator.Multipliers.Bidder.Rare = 4
+Auctionator.Multipliers.Bidder.Epic = 5
+Auctionator.Multipliers.Bidder.Legendary = 10.0
+
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS

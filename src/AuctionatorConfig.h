@@ -59,6 +59,8 @@ struct AuctionatorSellerConfig
         uint32 queryLimit = 1000;
         uint32 defaultPrice = 100000;
         uint32 auctionsPerRun = 100;
+        float fluctuationMin = 0.94f;  
+        float fluctuationMax = 1.06f;
 };
 
 class AuctionatorConfig
