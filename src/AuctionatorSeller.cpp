@@ -146,67 +146,69 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
 
     // Construct the SQL query with the additional conditions and the ORDER BY clause
     std::string itemQuery = R"(
+SELECT
+    it.entry,
+    it.name,
+    it.BuyPrice,
+    it.stackable,
+    it.quality,
+    mp.average_price,
+    it.class,
+    it.subclass,
+    it.ItemLevel,
+    it.RequiredLevel,
+    it.SellPrice
+FROM
+    mod_auctionator_itemclass_config aicconf
+    LEFT JOIN item_template it ON
+        aicconf.class = it.class AND
+        aicconf.subclass = it.subclass AND
+        -- skip BoP
+        it.bonding != 1 AND
+        it.bonding != 4 AND
+        (
+            it.bonding >= aicconf.bonding OR
+            it.bonding = 0
+        )
+    LEFT JOIN mod_auctionator_disabled_items dis ON it.entry = dis.item
+    LEFT JOIN (
         SELECT
-            it.entry
-            , it.name
-            , it.BuyPrice
-            , it.stackable
-            , it.quality
-            , mp.average_price
-            , it.class
-            , it.subclass
-            , it.ItemLevel
-            , it.RequiredLevel
-            , it.SellPrice
+            COUNT(ii.itemEntry) as itemCount,
+            ii.itemEntry AS itemEntry
         FROM
-            mod_auctionator_itemclass_config aicconf
-            LEFT JOIN item_template it ON
-                aicconf.class = it.class
-                AND aicconf.subclass = it.subclass
-                -- skip BoP
-                AND it.bonding != 1
-                AND it.bonding != 4
-                AND (
-                    it.bonding >= aicconf.bonding
-                    OR it.bonding = 0
-                )
-            LEFT JOIN mod_auctionator_disabled_items dis on it.entry = dis.item
-            LEFT JOIN (
-                SELECT
-                    count(ii.itemEntry) as itemCount
-                    , ii.itemEntry AS itemEntry
-                FROM
-                    acore_characters.item_instance ii
-                    INNER JOIN {}.auctionhouse ah ON ii.guid = ah.itemguid
-                WHERE ah.houseId = {}
-                GROUP BY ii.itemEntry
-            ) ic ON ic.itemEntry = it.entry
-            LEFT JOIN
-                (
-                    SELECT
-                        DISTINCT(mpp.entry),
-                        mpa.average_price
-                    FROM {}.mod_auctionator_market_price mpp
-                    INNER JOIN (
-                        SELECT
-                            max(scan_datetime) AS scan,
-                            entry
-                        FROM {}.mod_auctionator_market_price
-                        GROUP BY entry
-                    ) mps ON mpp.entry = mps.entry
-                    INNER JOIN
-                        {}.mod_auctionator_market_price mpa
-                        ON mpa.entry = mpp.entry
-                        AND mpa.scan_datetime = mps.scan
-                ) mp ON it.entry = mp.entry
+            acore_characters.item_instance ii
+            INNER JOIN {}.auctionhouse ah ON ii.guid = ah.itemguid
         WHERE
-            dis.item IS NULL
-            AND it.entry <= 56000
-            )" + additionalConditions + orderByClause + R"(
-        ORDER BY RAND()
-        LIMIT {}
-        ;
-    )";
+            ah.houseId = {}
+        GROUP BY
+            ii.itemEntry
+    ) ic ON ic.itemEntry = it.entry
+    LEFT JOIN (
+        SELECT
+            DISTINCT(mpp.entry),
+            mpa.average_price
+        FROM
+            {}.mod_auctionator_market_price mpp
+        INNER JOIN (
+            SELECT
+                MAX(scan_datetime) AS scan,
+                entry
+            FROM
+                {}.mod_auctionator_market_price
+            GROUP BY
+                entry
+        ) mps ON mpp.entry = mps.entry
+        INNER JOIN
+            {}.mod_auctionator_market_price mpa ON mpa.entry = mpp.entry AND mpa.scan_datetime = mps.scan
+    ) mp ON it.entry = mp.entry
+WHERE
+    dis.item IS NULL AND
+    it.entry <= 56000
+)" + additionalConditions + orderByClause + R"(
+LIMIT {}
+;
+
+)";
 
     QueryResult result = WorldDatabase.Query(
         itemQuery,
