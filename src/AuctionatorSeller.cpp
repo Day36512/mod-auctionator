@@ -143,8 +143,8 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     if (nator->config->sellerConfig.prioritizeTradeGoods == 1) {
         orderByClause = " ORDER BY CASE WHEN it.class = 7 THEN 0 ELSE 1 END, RAND()";
     }
-    
-    // Construct the SQL query with the additional conditions
+
+    // Construct the SQL query with the additional conditions and the ORDER BY clause
     std::string itemQuery = R"(
         SELECT
             it.entry
@@ -171,16 +171,16 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
                     OR it.bonding = 0
                 )
             LEFT JOIN mod_auctionator_disabled_items dis on it.entry = dis.item
-LEFT JOIN (
-    SELECT
-        count(ii.itemEntry) as itemCount
-        , ii.itemEntry AS itemEntry
-    FROM
-        acore_characters.item_instance ii
-        INNER JOIN {}.auctionhouse ah ON ii.guid = ah.itemguid
-    WHERE ah.houseId = {}
-    GROUP BY ii.itemEntry
-) ic ON ic.itemEntry = it.entry
+            LEFT JOIN (
+                SELECT
+                    count(ii.itemEntry) as itemCount
+                    , ii.itemEntry AS itemEntry
+                FROM
+                    acore_characters.item_instance ii
+                    INNER JOIN {}.auctionhouse ah ON ii.guid = ah.itemguid
+                WHERE ah.houseId = {}
+                GROUP BY ii.itemEntry
+            ) ic ON ic.itemEntry = it.entry
             LEFT JOIN
                 (
                     SELECT
