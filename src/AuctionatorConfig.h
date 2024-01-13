@@ -63,6 +63,9 @@ struct AuctionatorSellerConfig
         float fluctuationMax = 1.06f;
         uint32 excludePoorQualityItems = 0;
         uint32 prioritizeTradeGoods = 0;
+        uint32 excludeVanillaItems = 0;
+        uint32 excludeTBCItems = 0;
+        uint32 excludeWotLKItems = 0;
 };
 
 struct AuctionatorExpansionQualityMultiplierConfig {

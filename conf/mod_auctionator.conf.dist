@@ -57,11 +57,11 @@ Auctionator.NeutralBidder.MaxPerCycle = 2
 # this may be helpful for changing randomness of the auctions.
 # Default is 1000 items.
 ########################################
-Auctionator.Seller.QueryLimit = 1000
+Auctionator.Seller.QueryLimit = 15000
 
 ########################################
 # Default price for items that have a BuyPrice of 0.
-# Default is 1 gold.
+# Default is 1 gold. Note: This is currently unused.
 ########################################
 Auctionator.Seller.DefaultPrice = 10000
 
@@ -73,7 +73,7 @@ Auctionator.Seller.DefaultPrice = 10000
 # what happens if it's not.
 # Default is 100 per house per cycle.
 ########################################
-Auctionator.Seller.AuctionsPerRun = 500
+Auctionator.Seller.AuctionsPerRun = 5000
 
 ########################################
 # Allows the bidder to bid on their own auctions.
@@ -138,7 +138,9 @@ Auctionator.Seller.FluctuationMin = 0.94
 # Default: 1.06
 Auctionator.Seller.FluctuationMax = 1.06
 
+#######################################
 # Auctionator Seller Expansion Quality Multipliers
+#######################################
 #    These settings define multipliers for item prices based on their quality and the expansion they belong to.
 #    Vanilla range: item level 1-92, TBC range: item level 93-164, WotLK range: item level 165+.
 #    For items without an item level, or item level of 1, required level is used. This means that some items 
@@ -174,16 +176,10 @@ Auctionator.ExpansionQualityMultipliers.WotLK.Rare = 1.2
 Auctionator.ExpansionQualityMultipliers.WotLK.Epic = 2.5
 Auctionator.ExpansionQualityMultipliers.WotLK.Legendary = 1.0
 
-# Prioritize Trade Goods in Auction Listings
-# If set to 1, trade goods (class 7 items) will be prioritized in auction listings.
-# If set to 0, no specific prioritization will be applied to trade goods.
-# While trade goods (class 7 items) are prioritized and appear first, other items will still be listed afterward.
-# Default: 0 (No prioritization)
-Auctionator.Prioritize.TradeGoods = 1
-
 
 #######################################
-# Dinkle: Auctionator configuration for excluding specific item types from auctions.
+# Auctionator Seller Exclusions and Priorities.
+#######################################
 # You may want to exclude said items for better balance in individual progression. 
 # Vanilla has its own set of gems that really shouldn't be using level 70+ gems. Same with TBC and 80+ gems.
 # If you enable trade goods, you also may want to disable the trader 
@@ -220,13 +216,44 @@ Auctionator.Exclude.Glyphs = 1
 # If set to 0, poor quality (gray) items will be included in auction listings.
 # This setting allows more of other auction types that are actually useful.
 # Default: 1 (Exclude Gray Quality Items)
-
 Auctionator.Seller.ExcludePoorQualityItems = 1
+
+# Prioritize Trade Goods in Auction Listings
+# If set to 1, trade goods (class 7 items) will be prioritized in auction listings.
+# If set to 0, no specific prioritization will be applied to trade goods.
+# Trade goods will be prioritized and appear first, other items will be listed afterward.
+# In order to get items other than trade goods on your Auctionhouse, AuctionsPerRun and QueryLimit must be increased exponentially.
+# Default: 0 (No prioritization)
+Auctionator.Prioritize.TradeGoods = 1
+
+#######################################
+# Exclude Expansion Specific Items
+#######################################
+# These options allow you to exclude items from specific expansions in auction listings.
+# Note: Due to the nature of Blizzard's item implementations, these are approximate ranges.
+# Some items excluded per expansion may include late-game items, such as Sunwell Plans.
+# I suggest disabling later expac items while you level to help fill the auction house.
+# The exclusion also considers the 'RequiredLevel' of items, offering a more comprehensive filter.
+
+# Exclude Vanilla Items
+# If set to 1, Vanilla items (entry range 1-21839 or RequiredLevel 2-60) will be excluded from auction listings.
+# Default: 0 (Include Vanilla Items)
+Auctionator.Exclude.VanillaItems = 0
+
+# Exclude TBC Items
+# If set to 1, TBC items (entry range 21840-34050 or RequiredLevel 61-70) will be excluded from auction listings.
+# Default: 0 (Include TBC Items)
+Auctionator.Exclude.TBCItems = 0
+
+# Exclude WotLK Items
+# If set to 1, WotLK items (entry range 34051-58000 or RequiredLevel 71+) will be excluded from auction listings.
+# Default: 0 (Include WotLK Items)
+Auctionator.Exclude.WotLKItems = 0
 
 ########################################
 # Multipliers for bidder prices 
 # TODO: Class multipliers. Right now it's just by quality,
-# so selling may be much different than buying.
+# so selling your items may be much different than buying.
 ########################################
 Auctionator.Multipliers.Bidder.Poor = 1.0
 Auctionator.Multipliers.Bidder.Normal = 2

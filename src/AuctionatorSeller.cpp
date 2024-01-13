@@ -130,6 +130,15 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     if (nator->config->sellerConfig.excludePoorQualityItems == 1) {
         additionalConditions += " AND it.quality != 0"; 
     }
+    if (nator->config->sellerConfig.excludeVanillaItems == 1) {
+        additionalConditions += " AND NOT ((it.entry BETWEEN 1 AND 21839) OR (it.RequiredLevel BETWEEN 2 AND 60))";
+    }
+    if (nator->config->sellerConfig.excludeTBCItems == 1) {
+        additionalConditions += " AND NOT ((it.entry BETWEEN 21840 AND 34050) OR (it.RequiredLevel BETWEEN 61 AND 70))";
+    }
+    if (nator->config->sellerConfig.excludeWotLKItems == 1) {
+        additionalConditions += " AND NOT ((it.entry BETWEEN 34051 AND 58000) OR (it.RequiredLevel >= 71))";
+    }
 
     // Set the maximum number of items to query for. Changing this <might>
     // affect how random our auctoin listing are at the cost of memory/cpu
@@ -137,7 +146,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     uint32 queryLimit = nator->config->sellerConfig.queryLimit;
 
     // Get the name of the character database so we can do our join below.
-    std::string characterDbName = CharacterDatabase.GetConnectionInfo()->database;
+    std::string characterDbName = CharacterDatabase.GetConnectionInfo()->database; 
 
     std::string orderByClause = " ORDER BY RAND()"; // Default random order
     if (nator->config->sellerConfig.prioritizeTradeGoods == 1) {

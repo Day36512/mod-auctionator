@@ -316,6 +316,11 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
 
     //Dinkle: Prioritize Trade Goods
     config->sellerConfig.prioritizeTradeGoods = configMgr->GetOption<uint32>("Auctionator.Prioritize.TradeGoods", 0);
+
+    //Dinkle: Expansion-level exclusions
+    config->sellerConfig.excludeVanillaItems = configMgr->GetOption<uint32>("Auctionator.Exclude.VanillaItems", 0);
+    config->sellerConfig.excludeTBCItems = configMgr->GetOption<uint32>("Auctionator.Exclude.TBCItems", 0);
+    config->sellerConfig.excludeWotLKItems = configMgr->GetOption<uint32>("Auctionator.Exclude.WotLKItems", 0);
     
     logInfo("Auctionator config initialized");
 }
