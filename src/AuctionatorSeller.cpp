@@ -149,6 +149,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
             , it.subclass
             , it.ItemLevel
             , it.RequiredLevel
+            , it.SellPrice
         FROM
             mod_auctionator_itemclass_config aicconf
             LEFT JOIN item_template it ON
@@ -291,11 +292,15 @@ LEFT JOIN (
         float finalPricePerItem = 0.0f;
         float fluctuationFactor = fluctuationDist(gen);
 
+        // Use BuyPrice if available; otherwise, fallback to 2x SellPrice or 3x entry value
+        uint32 itemId = fields[0].Get<uint32>(); // Assuming 'fields[0]' is the item's entry
+        uint32 basePrice = (price > 0) ? price : (fields[10].Get<uint32>() > 0 ? 2 * fields[10].Get<uint32>() : 3 * itemId);
+
         if (marketPrice > 0) {
             finalPricePerItem = marketPrice * fluctuationFactor;
         }
         else {
-            finalPricePerItem = static_cast<float>(price) * qualityMultiplier *
+            finalPricePerItem = static_cast<float>(basePrice) * qualityMultiplier *
                 (classMultiplierOpt ? classMultiplierOpt.value() : 1.0f) *
                 (subclassMultiplierOpt ? subclassMultiplierOpt.value() : 1.0f) *
                 expansionQualityMultiplier * fluctuationFactor;
