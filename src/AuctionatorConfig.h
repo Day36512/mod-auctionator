@@ -61,6 +61,8 @@ struct AuctionatorSellerConfig
         uint32 auctionsPerRun = 100;
         float fluctuationMin = 0.94f;  
         float fluctuationMax = 1.06f;
+        uint32 excludePoorQualityItems = 0;
+        uint32 prioritizeTradeGoods = 0;
 };
 
 struct AuctionatorExpansionQualityMultiplierConfig {

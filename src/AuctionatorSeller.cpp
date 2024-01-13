@@ -127,6 +127,9 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     if (excludeGlyphs) {
         additionalConditions += " AND it.class != 16";
     }
+    if (nator->config->sellerConfig.excludePoorQualityItems == 1) {
+        additionalConditions += " AND it.quality != 0"; 
+    }
 
     // Set the maximum number of items to query for. Changing this <might>
     // affect how random our auctoin listing are at the cost of memory/cpu
@@ -136,6 +139,11 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     // Get the name of the character database so we can do our join below.
     std::string characterDbName = CharacterDatabase.GetConnectionInfo()->database;
 
+    std::string orderByClause = " ORDER BY RAND()"; // Default random order
+    if (nator->config->sellerConfig.prioritizeTradeGoods == 1) {
+        orderByClause = " ORDER BY CASE WHEN it.class = 7 THEN 0 ELSE 1 END, RAND()";
+    }
+    
     // Construct the SQL query with the additional conditions
     std::string itemQuery = R"(
         SELECT
@@ -194,7 +202,7 @@ LEFT JOIN (
         WHERE
             dis.item IS NULL
             AND it.entry <= 56000
-            )" + additionalConditions + R"(
+            )" + additionalConditions + orderByClause + R"(
         ORDER BY RAND()
         LIMIT {}
         ;
@@ -292,9 +300,9 @@ LEFT JOIN (
         float finalPricePerItem = 0.0f;
         float fluctuationFactor = fluctuationDist(gen);
 
-        // Use BuyPrice if available; otherwise, fallback to 2x SellPrice or 3x entry value
+        // Use BuyPrice if available; otherwise, fallback to 4x SellPrice or 3x entry value
         uint32 itemId = fields[0].Get<uint32>(); // Assuming 'fields[0]' is the item's entry
-        uint32 basePrice = (price > 0) ? price : (fields[10].Get<uint32>() > 0 ? 2 * fields[10].Get<uint32>() : 3 * itemId);
+        uint32 basePrice = (price > 0) ? price : (fields[10].Get<uint32>() > 0 ? 4 * fields[10].Get<uint32>() : 3 * itemId);
 
         if (marketPrice > 0) {
             finalPricePerItem = marketPrice * fluctuationFactor;

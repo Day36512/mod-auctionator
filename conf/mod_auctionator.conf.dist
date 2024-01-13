@@ -27,10 +27,10 @@ Auctionator.CharacterGuid = 3
 # Seller configuration
 ########################################
 Auctionator.AllianceSeller.Enabled = 1
-Auctionator.AllianceSeller.MaxAuctions = 15000
+Auctionator.AllianceSeller.MaxAuctions = 30000
 
 Auctionator.HordeSeller.Enabled = 1
-Auctionator.HordeSeller.MaxAuctions = 15000
+Auctionator.HordeSeller.MaxAuctions = 30000
 
 Auctionator.NeutralSeller.Enabled = 0
 Auctionator.NeutralSeller.MaxAuctions = 15000
@@ -88,7 +88,10 @@ Auctionator.Bidder.BidOnOwn = 1
 # CLASS OR SUBCLASS * QUALTY MULTIPLIER = FINAL PRICE 
 # Example: Normal 3.0 * Weapon 3.0 = 9 final price multiplier.
 # NOTE: if mod_auctionator_market_price has an entry for a specific item,
-# multipliers will not take effect. Multipliers are based on item_template BuyPrice.
+# multipliers will not take effect. 
+# Multipliers are based on item_template BuyPrice. If no BuyPrice, then uses 4x SellPrice.
+# If no SellPrice or Buyprice, we use the "screw it" method and go based off of entry number 3x.
+# I suggest that if you want more accurate prices to use mod_auctionator_market_price and share it.
 ########################################
 
 # Global Multipliers. Does not affect items in mod_auctionator_market_price table.
@@ -108,8 +111,8 @@ Auctionator.Multipliers.Seller.Subclass.FoodDrink = 3.25
 Auctionator.Multipliers.Seller.Subclass.ItemEnhancement = 3.1
 Auctionator.Multipliers.Seller.Subclass.Bandage = 2.0
 Auctionator.Multipliers.Seller.Subclass.OtherConsumable = 1.5
-Auctionator.Multipliers.Seller.Container = 1.1
-Auctionator.Multipliers.Seller.Weapon = 1.3
+Auctionator.Multipliers.Seller.Container = 2
+Auctionator.Multipliers.Seller.Weapon = 1.2
 Auctionator.Multipliers.Seller.Gem = 1.2
 Auctionator.Multipliers.Seller.Armor = 1.1
 Auctionator.Multipliers.Seller.Reagent = 1.05
@@ -152,7 +155,7 @@ Auctionator.ExpansionQualityMultipliers.Vanilla.Poor = 1.0
 Auctionator.ExpansionQualityMultipliers.Vanilla.Normal = 1.0
 Auctionator.ExpansionQualityMultipliers.Vanilla.Uncommon = 0.82
 Auctionator.ExpansionQualityMultipliers.Vanilla.Rare = 0.85
-Auctionator.ExpansionQualityMultipliers.Vanilla.Epic = 1.0
+Auctionator.ExpansionQualityMultipliers.Vanilla.Epic = 2.0
 Auctionator.ExpansionQualityMultipliers.Vanilla.Legendary = 1.0
 
 # TBC Expansion Quality Multipliers
@@ -160,17 +163,23 @@ Auctionator.ExpansionQualityMultipliers.TBC.Poor = 1.0
 Auctionator.ExpansionQualityMultipliers.TBC.Normal = 2.0
 Auctionator.ExpansionQualityMultipliers.TBC.Uncommon = 1.0
 Auctionator.ExpansionQualityMultipliers.TBC.Rare = 1.0
-Auctionator.ExpansionQualityMultipliers.TBC.Epic = 1.0
+Auctionator.ExpansionQualityMultipliers.TBC.Epic = 1.5
 Auctionator.ExpansionQualityMultipliers.TBC.Legendary = 1.0
 
 # WotLK Expansion Quality Multipliers
 Auctionator.ExpansionQualityMultipliers.WotLK.Poor = 1.0
-Auctionator.ExpansionQualityMultipliers.WotLK.Normal = 3.0
-Auctionator.ExpansionQualityMultipliers.WotLK.Uncommon = 1.0
+Auctionator.ExpansionQualityMultipliers.WotLK.Normal = 2.0
+Auctionator.ExpansionQualityMultipliers.WotLK.Uncommon = 1
 Auctionator.ExpansionQualityMultipliers.WotLK.Rare = 1.2
-Auctionator.ExpansionQualityMultipliers.WotLK.Epic = 1.5
+Auctionator.ExpansionQualityMultipliers.WotLK.Epic = 2.5
 Auctionator.ExpansionQualityMultipliers.WotLK.Legendary = 1.0
 
+# Prioritize Trade Goods in Auction Listings
+# If set to 1, trade goods (class 7 items) will be prioritized in auction listings.
+# If set to 0, no specific prioritization will be applied to trade goods.
+# While trade goods (class 7 items) are prioritized and appear first, other items will still be listed afterward.
+# Default: 0 (No prioritization)
+Auctionator.Prioritize.TradeGoods = 1
 
 
 #######################################
@@ -189,8 +198,8 @@ Auctionator.ExpansionQualityMultipliers.WotLK.Legendary = 1.0
 Auctionator.Exclude.Gems = 1
 
 # Exclude Enchants
-# If set to 1, enchant items will be excluded from auction listings.
-# If set to 0, enchant items will be included in auction listings.
+# If set to 1, enchants, such as scrolls, will be excluded from auction listings.
+# If set to 0, enchants,  such as scrolls, will be included in auction listings.
 # Default: 1 (Exclude Enchants)
 Auctionator.Exclude.Enchants = 1
 
@@ -206,6 +215,13 @@ Auctionator.Exclude.TradeGoods = 0
 # Default: 1(Exclude Glyphs)
 Auctionator.Exclude.Glyphs = 1
 
+# Exclude Gray Quality Items
+# If set to 1, poor quality (gray) items will be excluded from auction listings.
+# If set to 0, poor quality (gray) items will be included in auction listings.
+# This setting allows more of other auction types that are actually useful.
+# Default: 1 (Exclude Gray Quality Items)
+
+Auctionator.Seller.ExcludePoorQualityItems = 1
 
 ########################################
 # Multipliers for bidder prices 

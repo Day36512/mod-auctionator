@@ -311,6 +311,12 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->expansionQualityMultipliers.wotlkEpic = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Epic", 1.0f);
     config->expansionQualityMultipliers.wotlkLegendary = configMgr->GetOption<float>("Auctionator.ExpansionQualityMultipliers.WotLK.Legendary", 1.0f);
 
+    //Dinkle: exclude poor quality items
+    config->sellerConfig.excludePoorQualityItems = configMgr->GetOption<uint32>("Auctionator.Seller.ExcludePoorQualityItems", 0);
+
+    //Dinkle: Prioritize Trade Goods
+    config->sellerConfig.prioritizeTradeGoods = configMgr->GetOption<uint32>("Auctionator.Prioritize.TradeGoods", 0);
+    
     logInfo("Auctionator config initialized");
 }
 
