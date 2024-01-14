@@ -102,16 +102,9 @@ Auctionator.Multipliers.Seller.Rare = 2
 Auctionator.Multipliers.Seller.Epic = 4
 Auctionator.Multipliers.Seller.Legendary = 4.0
 
-# Class and Subclass specific multipliers
-Auctionator.Multipliers.Seller.Potion = 3.12
-Auctionator.Multipliers.Seller.Elixir = 6.15
-Auctionator.Multipliers.Seller.Subclass.Flask = 5.3
-Auctionator.Multipliers.Seller.Subclass.Scroll = 1.1
-Auctionator.Multipliers.Seller.Subclass.FoodDrink = 3.25
-Auctionator.Multipliers.Seller.Subclass.ItemEnhancement = 3.1
-Auctionator.Multipliers.Seller.Subclass.Bandage = 2.0
-Auctionator.Multipliers.Seller.Subclass.OtherConsumable = 1.5
-Auctionator.Multipliers.Seller.Container = 2
+# Class specific multipliers
+Auctionator.Multipliers.Seller.Consumables = 2
+Auctionator.Multipliers.Seller.Container = 1.5
 Auctionator.Multipliers.Seller.Weapon = 1.2
 Auctionator.Multipliers.Seller.Gem = 1.2
 Auctionator.Multipliers.Seller.Armor = 1.1

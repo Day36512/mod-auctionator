@@ -125,95 +125,92 @@ AuctionEntry* AuctionatorBidder::GetAuctionForPurchase(std::vector<uint32>& auct
 
 bool AuctionatorBidder::BidOnAuction(AuctionEntry* auction, ItemTemplate const* itemTemplate)
 {
-    uint32 currentPrice;
-
-    // Check and see if someone has already bid on this auction. It is afterall
-    // possible that a player has bid on it and we (currently) aren't in the market
-    // of outbidding players. It's also possible we have bid on it and there is
-    // no reason for us to bid against ourselves.
+    // Check if someone has already bid on this auction.
     if (auction->bid) {
         if (auction->bidder == buyerGuid) {
             logInfo("Skipping auction, I have already bid: "
                 + std::to_string(auction->bid) + ".");
-        } else {
+        }
+        else {
             logInfo("Skipping auction, someone else has already bid "
                 + std::to_string(auction->bid) + ".");
         }
         return false;
-    } else {
-        // nobody has bidded on this auction, so let's grab it's current bid value
-        // for further scrutiny.
-        currentPrice = auction->startbid;
     }
 
-    // find out what we should really consider paying for the auction
-    uint32 buyPrice = CalculateBuyPrice(auction, itemTemplate);
+    // Nobody has bidded on this auction, so let's grab its current bid value.
+    uint32 currentPrice = auction->startbid;
 
-    // decide if our bid is less than the max amount we want to pay to avoid overpaying
-    // for an item.
-    if (currentPrice > buyPrice) {
+    // Calculate the standard and increased buy prices.
+    uint32 normalBuyPrice = CalculateBuyPrice(auction, itemTemplate, false);
+    uint32 increasedBuyPrice = CalculateBuyPrice(auction, itemTemplate, true);
+
+    // Decide if our bid is less than the max amount we want to pay.
+    if (currentPrice > normalBuyPrice && currentPrice > increasedBuyPrice) {
         logInfo("Skipping auction ("
-            + std::to_string(auction->Id) + "), price of "
-            + std::to_string(currentPrice) + " is higher than template price of ("
-            + std::to_string(buyPrice) + ")"
-        );
+            + std::to_string(auction->Id) + "), current price of "
+            + std::to_string(currentPrice) + " is higher than both normal ("
+            + std::to_string(normalBuyPrice) + ") and increased price ("
+            + std::to_string(increasedBuyPrice) + ")");
         return false;
     }
 
-    // Let's make a bid. We are going to add half the difference between the current
-    // bid and the max price to the amount we bid just to try to help the seller out
-    // a little bit but not overpay by TOO much.
-    uint32 bidPrice = currentPrice + (buyPrice - currentPrice) / 2;
+    // Calculate the bid price.
+    uint32 bidPrice;
+    if (currentPrice <= normalBuyPrice) {
+        bidPrice = currentPrice + (normalBuyPrice - currentPrice) / 2;
+    }
+    else {
+        // If current price is above normal but below increased price
+        bidPrice = currentPrice + (increasedBuyPrice - currentPrice) / 2;
+    }
 
+    // Update the auction with the new bid.
     auction->bidder = buyerGuid;
     auction->bid = bidPrice;
 
-    // we probably shouldn't be updating the database directly here but this is what
-    // i have seen the ahbot mod do so i am going with it for now.
+    // Update the database.
     CharacterDatabase.Execute(R"(
-            UPDATE
-                auctionhouse
-            SET
-                buyguid = {},
-                lastbid = {}.
-            WHERE
-                id = {}
-        )",
+        UPDATE
+            auctionhouse
+        SET
+            buyguid = {},
+            lastbid = {}.
+        WHERE
+            id = {}
+    )",
         auction->bidder.GetCounter(),
         auction->bid,
-        auction->Id
-    );
+        auction->Id);
 
     logInfo("Bid on auction of "
         + itemTemplate->Name1 + " ["
-        + std::to_string(auction->Id) + "] of "
-        + std::to_string(bidPrice) + " copper."
-    );
+        + std::to_string(auction->Id) + "] for "
+        + std::to_string(bidPrice) + " copper.");
 
     return true;
 }
 
 bool AuctionatorBidder::BuyoutAuction(AuctionEntry* auction, ItemTemplate const* itemTemplate)
 {
-    // let's just go ahead and find out what the max we will pay for this item is.
-    uint32 buyPrice = CalculateBuyPrice(auction, itemTemplate);
+    // Calculate the normal and 20% increased buy prices.
+    uint32 normalPrice = CalculateBuyPrice(auction, itemTemplate, false);
+    uint32 increasedPrice = CalculateBuyPrice(auction, itemTemplate, true);
 
-    if (auction->buyout > buyPrice) {
+    // Determine if the buyout price is acceptable (less than or equal to normal or increased price).
+    if (auction->buyout > normalPrice && auction->buyout > increasedPrice) {
         logInfo("Skipping buyout, price ("
-            + std::to_string(auction->buyout) +") is higher than template buyprice ("
-            + std::to_string(buyPrice) +")");
+            + std::to_string(auction->buyout) + ") is higher than normal and 20% increased prices ("
+            + std::to_string(normalPrice) + " and " + std::to_string(increasedPrice) + ")");
         return false;
     }
 
-    // also based somewhat on what ahbot does, let's go ahead and buy this.
+    // Proceed with the buyout as usual.
     auto trans = CharacterDatabase.BeginTransaction();
-    // set our bidder and bid on the auction record.
     auction->bidder = buyerGuid;
     auction->bid = auction->buyout;
 
-    // let the seller know we bought their junk.
     sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
-    // delete the auction for the database so it doesn't come back on a server reload.
     auction->DeleteFromDB(trans);
 
     logInfo("Purchased auction of "
@@ -223,12 +220,9 @@ bool AuctionatorBidder::BuyoutAuction(AuctionEntry* auction, ItemTemplate const*
         + std::to_string(auction->buyout) + " copper."
     );
 
-    // remove the aucton from memory. i don't fully understand why we need to do this
-    // in 2 different places but i am going with it for now.
     sAuctionMgr->RemoveAItem(auction->item_guid);
     ahMgr->RemoveAuction(auction);
 
-    // commit all these changes, however that works. thanks again ahbot.
     CharacterDatabase.CommitTransaction(trans);
 
     return true;
@@ -251,9 +245,9 @@ uint32 AuctionatorBidder::GetAuctionsPerCycle()
     }
 }
 
-uint32 AuctionatorBidder::CalculateBuyPrice(AuctionEntry* auction, ItemTemplate const* item)
+uint32 AuctionatorBidder::CalculateBuyPrice(AuctionEntry* auction, ItemTemplate const* item, bool includeIncrease)
 {
-    // get our market price for this item.
+    // Get the market price for this item.
     uint32 marketPrice = 0;
     std::string query = R"(
         SELECT
@@ -271,26 +265,42 @@ uint32 AuctionatorBidder::CalculateBuyPrice(AuctionEntry* auction, ItemTemplate 
         marketPrice = result->Fetch()[1].Get<uint32>();
     }
 
-    // get the stack size of the item.
+    // Get the stack size of the item.
     uint32 stackSize = 1;
     if (item->GetMaxStackSize() > 1 && auction->itemCount > 1) {
         stackSize = auction->itemCount;
     }
 
-    // get our miltiplier configuration so we can get the right quality multiplier.
+    // Get the quality multiplier configuration.
     AuctionatorPriceMultiplierConfig multiplierConfig = config->bidderMultipliers;
-    uint32 quality  = item->Quality;
+    uint32 quality = item->Quality;
     float qualityMultiplier = Auctionator::GetQualityMultiplier(multiplierConfig, quality);
 
-    // figure out if we are using our itemtemplate->BuyPrice or market price.
-    uint32 price = item->BuyPrice;
+    // Determine the price to use.
+    uint32 price = 0;
     if (marketPrice > 0) {
-        logInfo("Using Market over Template for bid eval [" + item->Name1 + "] " +
-            std::to_string(marketPrice) + " <--> " + std::to_string(price) +
-            " with multiplier of " + std::to_string(qualityMultiplier) + "x");
         price = marketPrice;
+        logInfo("Using Market over Template for bid eval [" + item->Name1 + "] " +
+            std::to_string(marketPrice) + " with multiplier of " + std::to_string(qualityMultiplier) + "x");
+    }
+    else if (item->BuyPrice > 0) {
+        price = item->BuyPrice;
+    }
+    else if (item->SellPrice > 0) {
+        price = item->SellPrice * 4; // Using SellPrice x 4 when BuyPrice is not available
+    }
+    else {
+        price = item->ItemId * 3; // Using entry x 3 as a fallback
     }
 
-    // calculate the max price we will pay for this item stack.
-    return uint32(stackSize * price * qualityMultiplier);
+    // Calculate the base price for this item stack.
+    uint32 basePrice = uint32(stackSize * price * qualityMultiplier);
+
+    // Apply a 20% increase if specified
+    if (includeIncrease) {
+        return static_cast<uint32>(basePrice * 1.20);
+    }
+
+    return basePrice;
 }
+

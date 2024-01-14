@@ -13,7 +13,6 @@ private:
 
     float GetQualityMultiplier(uint32 quality);
     std::optional<float> GetClassMultiplier(uint32 itemClass);
-    std::optional<float> GetSubclassMultiplier(uint32 itemClass, uint32 itemSubclass);
 
     float GetVanillaQualityMultiplier(uint32 quality);
     float GetTBCQualityMultiplier(uint32 quality);

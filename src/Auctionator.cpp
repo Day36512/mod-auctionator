@@ -282,6 +282,8 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->sellerMultipliers.key = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Key", 1.0f);
     config->sellerMultipliers.miscellaneous = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Miscellaneous", 1.0f);
     config->sellerMultipliers.glyph = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Glyph", 1.0f);
+    config->sellerMultipliers.consumables = configMgr->GetOption<float>("Auctionator.Multipliers.Seller.Consumables", 1.0f);
+
 
     // Dinkle: Load new multipliers for fluctuation
     config->sellerConfig.fluctuationMin = configMgr->GetOption<float>("Auctionator.Seller.FluctuationMin", 1.0f);

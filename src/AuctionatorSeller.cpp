@@ -35,6 +35,7 @@ float AuctionatorSeller::GetQualityMultiplier(uint32 quality) {
 std::optional<float> AuctionatorSeller::GetClassMultiplier(uint32 itemClass) {
     AuctionatorPriceMultiplierConfig& multiplierConfig = nator->config->sellerMultipliers;
     switch (itemClass) {
+    case 0: return multiplierConfig.consumables;
     case 1: return multiplierConfig.container;
     case 2: return multiplierConfig.weapon;
     case 3: return multiplierConfig.gem;
@@ -49,24 +50,6 @@ std::optional<float> AuctionatorSeller::GetClassMultiplier(uint32 itemClass) {
     case 16: return multiplierConfig.glyph;
     default: return std::nullopt; // No specific class multiplier
     }
-}
-
-std::optional<float> AuctionatorSeller::GetSubclassMultiplier(uint32 itemClass, uint32 itemSubclass) {
-    AuctionatorPriceMultiplierConfig& multiplierConfig = nator->config->sellerMultipliers; // Access sellerMultipliers directly
-    if (itemClass == 0) { // Assuming 0 is for consumables
-        switch (itemSubclass) {
-        case 1: return multiplierConfig.potion;
-        case 2: return multiplierConfig.elixir;
-        case 3: return multiplierConfig.flask;
-        case 4: return multiplierConfig.scroll;
-        case 5: return multiplierConfig.foodDrink;
-        case 6: return multiplierConfig.itemEnhancement;
-        case 7: return multiplierConfig.bandage;
-        case 8: return multiplierConfig.otherConsumable;
-        default: return std::nullopt; // No specific subclass multiplier
-        }
-    }
-    return std::nullopt; // No subclass multiplier for other classes
 }
 
 float AuctionatorSeller::GetVanillaQualityMultiplier(uint32 quality) {
@@ -128,7 +111,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
         additionalConditions += " AND it.class != 16";
     }
     if (nator->config->sellerConfig.excludePoorQualityItems == 1) {
-        additionalConditions += " AND it.quality != 0"; 
+        additionalConditions += " AND it.quality != 0";
     }
     if (nator->config->sellerConfig.excludeVanillaItems == 1) {
         additionalConditions += " AND NOT ((it.entry BETWEEN 1 AND 21839) OR (it.RequiredLevel BETWEEN 2 AND 60))";
@@ -146,7 +129,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     uint32 queryLimit = nator->config->sellerConfig.queryLimit;
 
     // Get the name of the character database so we can do our join below.
-    std::string characterDbName = CharacterDatabase.GetConnectionInfo()->database; 
+    std::string characterDbName = CharacterDatabase.GetConnectionInfo()->database;
 
     std::string orderByClause = " ORDER BY RAND()"; // Default random order
     if (nator->config->sellerConfig.prioritizeTradeGoods == 1) {
@@ -286,14 +269,10 @@ LIMIT {}
 
         float qualityMultiplier = GetQualityMultiplier(quality);
         auto classMultiplierOpt = GetClassMultiplier(itemClass);
-        auto subclassMultiplierOpt = GetSubclassMultiplier(itemClass, itemSubclass);
 
         float combinedMultiplier = qualityMultiplier;
         if (classMultiplierOpt) {
             combinedMultiplier *= classMultiplierOpt.value();
-        }
-        if (subclassMultiplierOpt) {
-            combinedMultiplier *= subclassMultiplierOpt.value();
         }
 
         // Determine expansion-specific and quality-based multiplier
@@ -321,7 +300,6 @@ LIMIT {}
         else {
             finalPricePerItem = static_cast<float>(basePrice) * qualityMultiplier *
                 (classMultiplierOpt ? classMultiplierOpt.value() : 1.0f) *
-                (subclassMultiplierOpt ? subclassMultiplierOpt.value() : 1.0f) *
                 expansionQualityMultiplier * fluctuationFactor;
         }
 
