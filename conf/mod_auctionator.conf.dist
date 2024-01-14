@@ -32,23 +32,23 @@ Auctionator.AllianceSeller.MaxAuctions = 30000
 Auctionator.HordeSeller.Enabled = 1
 Auctionator.HordeSeller.MaxAuctions = 30000
 
-Auctionator.NeutralSeller.Enabled = 0
+Auctionator.NeutralSeller.Enabled = 1
 Auctionator.NeutralSeller.MaxAuctions = 15000
 
 ########################################
 # Bidder/Buyer configuration
 ########################################
 Auctionator.AllianceBidder.Enabled = 1
-Auctionator.AllianceBidder.CycleMinutes = 30
-Auctionator.AllianceBidder.MaxPerCycle = 2
+Auctionator.AllianceBidder.CycleMinutes = 1
+Auctionator.AllianceBidder.MaxPerCycle = 1000
 
 Auctionator.HordeBidder.Enabled = 1
 Auctionator.HordeBidder.CycleMinutes = 1
-Auctionator.HordeBidder.MaxPerCycle = 2
+Auctionator.HordeBidder.MaxPerCycle = 1000
 
 Auctionator.NeutralBidder.Enabled = 1
-Auctionator.NeutralBidder.CycleMinutes = 30
-Auctionator.NeutralBidder.MaxPerCycle = 2
+Auctionator.NeutralBidder.CycleMinutes = 1
+Auctionator.NeutralBidder.MaxPerCycle = 1000
 
 
 ########################################
@@ -81,7 +81,7 @@ Auctionator.Seller.AuctionsPerRun = 5000
 # get you more turnover in you auctions.
 # Default is 0 to disable bidding on own auctions.
 ########################################
-Auctionator.Bidder.BidOnOwn = 1
+Auctionator.Bidder.BidOnOwn = 0
 
 ########################################
 # Multipliers for seller.

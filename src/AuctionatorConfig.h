@@ -6,17 +6,17 @@
 
 struct AuctionatorHouseConfig
 {
-    public:
-        uint32 enabled = 0;
-        uint32 maxAuctions = 100;
+public:
+    uint32 enabled = 0;
+    uint32 maxAuctions = 100;
 };
 
 struct AuctionatorBidderConfig
 {
-    public:
-        uint32 enabled;
-        uint32 cycleMinutes;
-        uint32 maxPerCycle;
+public:
+    uint32 enabled;
+    uint32 cycleMinutes;
+    uint32 maxPerCycle;
 };
 
 struct AuctionatorPriceMultiplierConfig
@@ -48,17 +48,17 @@ public:
 
 struct AuctionatorSellerConfig
 {
-    public:
-        uint32 queryLimit = 1000;
-        uint32 defaultPrice = 10000;
-        uint32 auctionsPerRun = 100;
-        float fluctuationMin = 0.94f;  
-        float fluctuationMax = 1.06f;
-        uint32 excludePoorQualityItems = 0;
-        uint32 prioritizeTradeGoods = 0;
-        uint32 excludeVanillaItems = 0;
-        uint32 excludeTBCItems = 0;
-        uint32 excludeWotLKItems = 0;
+public:
+    uint32 queryLimit = 1000;
+    uint32 defaultPrice = 10000;
+    uint32 auctionsPerRun = 100;
+    float fluctuationMin = 0.94f;
+    float fluctuationMax = 1.06f;
+    uint32 excludePoorQualityItems = 0;
+    uint32 prioritizeTradeGoods = 0;
+    uint32 excludeVanillaItems = 0;
+    uint32 excludeTBCItems = 0;
+    uint32 excludeWotLKItems = 0;
 };
 
 struct AuctionatorExpansionQualityMultiplierConfig {
@@ -87,37 +87,55 @@ struct AuctionatorExpansionQualityMultiplierConfig {
 
 class AuctionatorConfig
 {
-    private:
+public:
+    AuctionatorConfig()
+        : isEnabled(false),
+        characterId(0),
+        characterGuid(0),
+        auctionHouseId(7),
+        hordeSeller(),
+        allianceSeller(),
+        neutralSeller(),
+        allianceBidder(),
+        hordeBidder(),
+        neutralBidder(),
+        sellerMultipliers(),
+        bidderMultipliers(),
+        sellerConfig(),
+        expansionQualityMultipliers(),
+        bidOnOwn(0),
+        excludeGems(false),
+        excludeEnchants(false),
+        excludeTradeGoods(false),
+        excludeGlyphs(false)
+    {}
+    bool isEnabled;
+    uint32 characterId;
+    uint32 characterGuid;
+    uint32 auctionHouseId;
 
-    public:
-        AuctionatorConfig() {};
-        bool isEnabled = false;
-        uint32 characterId = 0;
-        uint32 characterGuid = 0;
-        uint32 auctionHouseId = 7;
+    AuctionatorHouseConfig hordeSeller;
+    AuctionatorHouseConfig allianceSeller;
+    AuctionatorHouseConfig neutralSeller;
 
-        AuctionatorHouseConfig hordeSeller;
-        AuctionatorHouseConfig allianceSeller;
-        AuctionatorHouseConfig neutralSeller;
+    AuctionatorBidderConfig allianceBidder;
+    AuctionatorBidderConfig hordeBidder;
+    AuctionatorBidderConfig neutralBidder;
 
-        AuctionatorBidderConfig allianceBidder;
-        AuctionatorBidderConfig hordeBidder;
-        AuctionatorBidderConfig neutralBidder;
+    AuctionatorPriceMultiplierConfig sellerMultipliers;
+    AuctionatorPriceMultiplierConfig bidderMultipliers;
 
-        AuctionatorPriceMultiplierConfig sellerMultipliers;
-        AuctionatorPriceMultiplierConfig bidderMultipliers;
+    AuctionatorSellerConfig sellerConfig;
 
-        AuctionatorSellerConfig sellerConfig;
+    AuctionatorExpansionQualityMultiplierConfig expansionQualityMultipliers;
 
-        AuctionatorExpansionQualityMultiplierConfig expansionQualityMultipliers;
+    uint32 bidOnOwn;
 
-        uint32 bidOnOwn = 0;
-        // Dinkle New fields for excluding specific item types
-        bool excludeGems = false;
-        bool excludeEnchants = false;
-        bool excludeTradeGoods = false;
-        bool excludeGlyphs = false;
-
+    // Dinkle New fields for excluding specific item types
+    bool excludeGems;
+    bool excludeEnchants;
+    bool excludeTradeGoods;
+    bool excludeGlyphs;
 };
+#endif // AUCTIONATOR_CONFIG_H
 
-#endif

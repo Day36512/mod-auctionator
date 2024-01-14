@@ -81,7 +81,7 @@ void Auctionator::CreateAuction(AuctionatorItem newItem, uint32 houseId)
     auctionEntry->buyout = newItem.buyout;
     auctionEntry->bid = 0;
     auctionEntry->deposit = 100;
-    auctionEntry->expire_time = (time_t) newItem.time + time(NULL);
+    auctionEntry->expire_time = (time_t)newItem.time + time(NULL);
     auctionEntry->auctionHouseEntry = GetAuctionHouseEntry(houseId);;
 
     logTrace("save item to db");
@@ -126,17 +126,17 @@ void Auctionator::CreateAuction(AuctionatorItem newItem, uint32 houseId)
  *
  * Ultimately this is just a global singleton.
 */
-AuctionHouseEntry const *Auctionator::GetAuctionHouseEntry(uint32 houseId)
+AuctionHouseEntry const* Auctionator::GetAuctionHouseEntry(uint32 houseId)
 {
-    switch(houseId) {
-        case(AUCTIONHOUSE_ALLIANCE):
-            return AllianceAhEntry;
-            break;
-        case(AUCTIONHOUSE_HORDE):
-            return HordeAhEntry;
-            break;
-        default:
-            return NeutralAhEntry;
+    switch (houseId) {
+    case(AUCTIONHOUSE_ALLIANCE):
+        return AllianceAhEntry;
+        break;
+    case(AUCTIONHOUSE_HORDE):
+        return HordeAhEntry;
+        break;
+    default:
+        return NeutralAhEntry;
     }
 }
 
@@ -146,16 +146,16 @@ AuctionHouseEntry const *Auctionator::GetAuctionHouseEntry(uint32 houseId)
  *
  * Ultimately this is just a global singleton.
 */
-AuctionHouseObject *Auctionator::GetAuctionHouse(uint32 houseId) {
-    switch(houseId) {
-        case(AUCTIONHOUSE_ALLIANCE):
-            return AllianceAh;
-            break;
-        case(AUCTIONHOUSE_HORDE):
-            return HordeAh;
-            break;
-        default:
-            return NeutralAh;
+AuctionHouseObject* Auctionator::GetAuctionHouse(uint32 houseId) {
+    switch (houseId) {
+    case(AUCTIONHOUSE_ALLIANCE):
+        return AllianceAh;
+        break;
+    case(AUCTIONHOUSE_HORDE):
+        return HordeAh;
+        break;
+    default:
+        return NeutralAh;
     }
 }
 
@@ -217,7 +217,7 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     // Load our seller configurations
     config->sellerConfig.auctionsPerRun = configMgr->GetOption<uint32>("Auctionator.Seller.AuctionsPerRun", 100);
     config->sellerConfig.defaultPrice = configMgr->GetOption<uint32>("Auctionator.Seller.DefaultPrice", 10000000);
-    config->sellerConfig.queryLimit = 
+    config->sellerConfig.queryLimit =
         configMgr->GetOption<uint32>("Auctionator.Seller.QueryLimit", config->sellerConfig.auctionsPerRun);
 
     // Load our bidder configurations
@@ -323,7 +323,7 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->sellerConfig.excludeVanillaItems = configMgr->GetOption<uint32>("Auctionator.Exclude.VanillaItems", 0);
     config->sellerConfig.excludeTBCItems = configMgr->GetOption<uint32>("Auctionator.Exclude.TBCItems", 0);
     config->sellerConfig.excludeWotLKItems = configMgr->GetOption<uint32>("Auctionator.Exclude.WotLKItems", 0);
-    
+
     logInfo("Auctionator config initialized");
 }
 
@@ -338,70 +338,70 @@ void Auctionator::Update()
     logInfo("Alliance count: " + std::to_string(AllianceAh->Getcount()));
     logInfo("Horde count: " + std::to_string(HordeAh->Getcount()));
 
-/*
-    if (config->allianceSeller.enabled) {
-        AuctionatorSeller sellerAlliance =
-            AuctionatorSeller(gAuctionator, static_cast<uint32>(AUCTIONHOUSE_ALLIANCE));
+    /*
+        if (config->allianceSeller.enabled) {
+            AuctionatorSeller sellerAlliance =
+                AuctionatorSeller(gAuctionator, static_cast<uint32>(AUCTIONHOUSE_ALLIANCE));
 
-        uint32 auctionCountAlliance = AllianceAh->Getcount();
+            uint32 auctionCountAlliance = AllianceAh->Getcount();
 
-        if (auctionCountAlliance <= config->allianceSeller.maxAuctions) {
-            logInfo(
-                "Alliance count is good, here we go: "
-                + std::to_string(auctionCountAlliance)
-                + " of " + std::to_string(config->allianceSeller.maxAuctions)
-            );
+            if (auctionCountAlliance <= config->allianceSeller.maxAuctions) {
+                logInfo(
+                    "Alliance count is good, here we go: "
+                    + std::to_string(auctionCountAlliance)
+                    + " of " + std::to_string(config->allianceSeller.maxAuctions)
+                );
 
-            sellerAlliance.LetsGetToIt(100, AUCTIONHOUSE_ALLIANCE);
+                sellerAlliance.LetsGetToIt(100, AUCTIONHOUSE_ALLIANCE);
+            } else {
+                logInfo("Alliance count over max: " + std::to_string(auctionCountAlliance));
+            }
         } else {
-            logInfo("Alliance count over max: " + std::to_string(auctionCountAlliance));
+            logInfo("Alliance Seller Disabled");
         }
-    } else {
-        logInfo("Alliance Seller Disabled");
-    }
 
-    if (config->hordeSeller.enabled) {
-        AuctionatorSeller sellerHorde =
-            AuctionatorSeller(gAuctionator, static_cast<uint32>(AUCTIONHOUSE_HORDE));
+        if (config->hordeSeller.enabled) {
+            AuctionatorSeller sellerHorde =
+                AuctionatorSeller(gAuctionator, static_cast<uint32>(AUCTIONHOUSE_HORDE));
 
-        uint32 auctionCountHorde = HordeAh->Getcount();
+            uint32 auctionCountHorde = HordeAh->Getcount();
 
-        if (auctionCountHorde <= config->hordeSeller.maxAuctions) {
-            logInfo(
-                "Horde count is good, here we go: "
-                + std::to_string(auctionCountHorde)
-                + " of " + std::to_string(config->hordeSeller.maxAuctions)
-            );
+            if (auctionCountHorde <= config->hordeSeller.maxAuctions) {
+                logInfo(
+                    "Horde count is good, here we go: "
+                    + std::to_string(auctionCountHorde)
+                    + " of " + std::to_string(config->hordeSeller.maxAuctions)
+                );
 
-            sellerHorde.LetsGetToIt(100, AUCTIONHOUSE_HORDE);
+                sellerHorde.LetsGetToIt(100, AUCTIONHOUSE_HORDE);
+            } else {
+                logInfo("Horde count over max: " + std::to_string(auctionCountHorde));
+            }
         } else {
-            logInfo("Horde count over max: " + std::to_string(auctionCountHorde));
+            logInfo("Horde Seller Disabled");
         }
-    } else {
-        logInfo("Horde Seller Disabled");
-    }
 
-    if (config->neutralSeller.enabled) {
-        AuctionatorSeller sellerNeutral =
-            AuctionatorSeller(gAuctionator, static_cast<uint32>(AUCTIONHOUSE_NEUTRAL));
+        if (config->neutralSeller.enabled) {
+            AuctionatorSeller sellerNeutral =
+                AuctionatorSeller(gAuctionator, static_cast<uint32>(AUCTIONHOUSE_NEUTRAL));
 
-        uint32 auctionCountNeutral = NeutralAh->Getcount();
+            uint32 auctionCountNeutral = NeutralAh->Getcount();
 
-        if (auctionCountNeutral <= config->neutralSeller.maxAuctions) {
-            logInfo(
-                "Neutral count is good, here we go: "
-                + std::to_string(auctionCountNeutral)
-                + " of " + std::to_string(config->neutralSeller.maxAuctions)
-            );
+            if (auctionCountNeutral <= config->neutralSeller.maxAuctions) {
+                logInfo(
+                    "Neutral count is good, here we go: "
+                    + std::to_string(auctionCountNeutral)
+                    + " of " + std::to_string(config->neutralSeller.maxAuctions)
+                );
 
-            sellerNeutral.LetsGetToIt(100, AUCTIONHOUSE_NEUTRAL);
+                sellerNeutral.LetsGetToIt(100, AUCTIONHOUSE_NEUTRAL);
+            } else {
+                logInfo("Neutral count over max: " + std::to_string(auctionCountNeutral));
+            }
         } else {
-            logInfo("Neutral count over max: " + std::to_string(auctionCountNeutral));
+            logInfo("Neutral Seller Disabled");
         }
-    } else {
-        logInfo("Neutral Seller Disabled");
-    }
-*/
+    */
 
     logInfo("UpdatingEvents");
     events.Update(1);
@@ -411,16 +411,16 @@ void Auctionator::Update()
 
 AuctionHouseObject* Auctionator::GetAuctionMgr(uint32 auctionHouseId)
 {
-    switch(auctionHouseId) {
-        case AUCTIONHOUSE_ALLIANCE:
-            return AllianceAh;
-            break;
-        case AUCTIONHOUSE_HORDE:
-            return HordeAh;
-            break;
-        default:
-            return NeutralAh;
-            break;
+    switch (auctionHouseId) {
+    case AUCTIONHOUSE_ALLIANCE:
+        return AllianceAh;
+        break;
+    case AUCTIONHOUSE_HORDE:
+        return HordeAh;
+        break;
+    default:
+        return NeutralAh;
+        break;
     }
 }
 
@@ -429,7 +429,7 @@ void Auctionator::ExpireAllAuctions(uint32 houseId)
     if (houseId != AUCTIONHOUSE_ALLIANCE &&
         houseId != AUCTIONHOUSE_HORDE &&
         houseId != AUCTIONHOUSE_NEUTRAL
-    ) {
+        ) {
         logDebug("Invalid houseId: " + std::to_string(houseId));
         return;
     }
@@ -461,20 +461,20 @@ void Auctionator::ExpireAllAuctions(uint32 houseId)
 
 float Auctionator::GetQualityMultiplier(AuctionatorPriceMultiplierConfig config, uint32 quality)
 {
-    switch(quality) {
-        case ITEM_QUALITY_POOR:
-            return config.poor;
-        case ITEM_QUALITY_NORMAL:
-            return config.normal;
-        case ITEM_QUALITY_UNCOMMON:
-            return config.uncommon;
-        case ITEM_QUALITY_RARE:
-            return config.rare;
-        case ITEM_QUALITY_EPIC:
-            return config.epic;
-        case ITEM_QUALITY_LEGENDARY:
-            return config.legendary;
-        default:
-            return 1;
+    switch (quality) {
+    case ITEM_QUALITY_POOR:
+        return config.poor;
+    case ITEM_QUALITY_NORMAL:
+        return config.normal;
+    case ITEM_QUALITY_UNCOMMON:
+        return config.uncommon;
+    case ITEM_QUALITY_RARE:
+        return config.rare;
+    case ITEM_QUALITY_EPIC:
+        return config.epic;
+    case ITEM_QUALITY_LEGENDARY:
+        return config.legendary;
+    default:
+        return 1;
     }
 }
