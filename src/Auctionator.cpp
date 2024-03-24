@@ -15,6 +15,7 @@
 #include "AuctionatorStructs.h"
 #include "EventMap.h"
 #include <vector>
+#include <random>
 
 Auctionator::Auctionator()
 {
@@ -70,6 +71,10 @@ void Auctionator::CreateAuction(AuctionatorItem newItem, uint32 houseId)
     logTrace("starting character transaction for AH item");
     auto trans = CharacterDatabase.BeginTransaction();
 
+    std::random_device rd;  
+    std::mt19937 gen(rd()); 
+    std::uniform_real_distribution<> dis(0.8, 0.9); 
+
     logTrace("creating auction entry");
     AuctionEntry* auctionEntry = new AuctionEntry();
     auctionEntry->Id = sObjectMgr->GenerateAuctionID();
@@ -79,7 +84,7 @@ void Auctionator::CreateAuction(AuctionatorItem newItem, uint32 houseId)
     auctionEntry->owner = player.GetGUID();
     auctionEntry->startbid = newItem.bid;
     auctionEntry->buyout = newItem.buyout;
-    auctionEntry->bid = 0;
+    auctionEntry->bid = newItem.buyout * dis(gen);
     auctionEntry->deposit = 100;
     auctionEntry->expire_time = (time_t)newItem.time + time(NULL);
     auctionEntry->auctionHouseEntry = GetAuctionHouseEntry(houseId);;
