@@ -73,7 +73,7 @@ void Auctionator::CreateAuction(AuctionatorItem newItem, uint32 houseId)
 
     std::random_device rd;  
     std::mt19937 gen(rd()); 
-    std::uniform_real_distribution<> dis(0.8, 0.9); 
+    std::uniform_real_distribution<> dis(0.75, 0.99); 
 
     logTrace("creating auction entry");
     AuctionEntry* auctionEntry = new AuctionEntry();
